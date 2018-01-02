@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>iExpr</RootNamespace>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>Stardust D.L.</Authors>
+    <Company>Stardust D.L.</Company>
+    <Description>iExpr 核心类库，提供表达式操作相关基本类型。</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Parallels\**" />
+    <EmbeddedResource Remove="Parallels\**" />
+    <None Remove="Parallels\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ChildExprValue.cs" />
+    <Compile Remove="ExprTree.cs" />
+    <Compile Remove="ICalculator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+  </ItemGroup>
+
+</Project>
