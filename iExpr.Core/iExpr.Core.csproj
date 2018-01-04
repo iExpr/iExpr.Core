@@ -3,11 +3,21 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>iExpr</RootNamespace>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Stardust D.L.</Authors>
     <Company>Stardust D.L.</Company>
     <Description>iExpr 核心类库，提供表达式操作相关基本类型。</Description>
+    <RepositoryUrl>https://github.com/StardustDL/iExpr.Core</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageProjectUrl>https://github.com/StardustDL/iExpr.Core/wiki</PackageProjectUrl>
+    <Copyright>GPLv3</Copyright>
+    <PackageLicenseUrl>https://github.com/StardustDL/iExpr.Core/blob/master/LICENSE</PackageLicenseUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sddl_iExprCore.pfx</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
+    <Version>0.3.0</Version>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
