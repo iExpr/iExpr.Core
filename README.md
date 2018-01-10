@@ -1,23 +1,28 @@
-# iExpr.Core
+<div align="center">
+    <img src="./resources/images/core.png" width = "8%"/>
+    <h1>iExpr.Core</h1>
+</div>
+
+![](https://img.shields.io/badge/framework-.netstandard2.0-blue.svg)
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
 [![](https://img.shields.io/badge/nuget-v0.3-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.3.0)
 
 + Author: Stardust D.L.
 + Version: 0.3
 
-The core types and functions of iExpr.  
-Based on **.Net Standard 2.0** .  
+The core types and functions of iExpr. 
 
 # Functions
 
 + You can use **iExpr.Core** to define your own expression types by creating different operations.  
 + Also you can use it to *"create"* a simple programming language. 
+
     > PS: this will be possible in next version.
 
 # Install
 
 ```
-Install-Package iExpr.Core -Version 0.3.0
+PM> Install-Package iExpr.Core -Version 0.3.0
 ```
 
 # Note
@@ -32,4 +37,4 @@ This is the app on Windows that I designed:
 
 # License
 
-## GPLv3
+## LGPLv3
