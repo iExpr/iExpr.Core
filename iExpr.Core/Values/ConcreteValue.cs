@@ -12,7 +12,7 @@ namespace iExpr.Values
         /// <summary>
         /// 判断是否是常量值
         /// </summary>
-        public bool IsConstant
+        public virtual bool IsConstant
         {
             get
             {
@@ -36,7 +36,7 @@ namespace iExpr.Values
         /// <summary>
         /// 值
         /// </summary>
-        public object Value { get; set; }
+        public virtual object Value { get; set; }
 
         public override string ToString()
         {

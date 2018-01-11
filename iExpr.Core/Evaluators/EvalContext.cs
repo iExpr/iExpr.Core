@@ -1,4 +1,5 @@
-﻿using iExpr.Helpers;
+﻿using iExpr.Exceptions;
+using iExpr.Helpers;
 using iExpr.Values;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace iExpr.Evaluators
 {
-    public enum EvalState
+    /*public enum EvalState
     {
         None,
         Working,
         Finished,
         Failed
-    }
+    }*/
 
     public class EvalContext
     {
@@ -38,8 +39,6 @@ namespace iExpr.Evaluators
         /// 变量列表
         /// </summary>
         public VariableValueProvider Variables { get; set; } = new VariableValueProvider();
-        
-        //public HashSet<string> IgnoreVariables { get; set; } = new HashSet<string>();
 
         /// <summary>
         /// 父级运算环境
@@ -48,11 +47,8 @@ namespace iExpr.Evaluators
 
         public CancellationTokenSource CancelToken { get; private set; }
 
-        public EvalState State { get; private set; }
-
         public void Renew(CancellationTokenSource cancel=null)
-        {
-            State = EvalState.None;
+        { 
             CancelToken = cancel ?? new CancellationTokenSource();
         }
 
@@ -62,36 +58,9 @@ namespace iExpr.Evaluators
         {
             var res = new EvalContext
             {
-                CancelToken = cancel,
-                State = EvalState.None
+                CancelToken = cancel
             };
             return res;
-        }
-
-        public async Task<IExpr> EvaluateAsync(IExpr expr)
-        {
-            if (State != EvalState.None) throw new Exception("The context is not in None state.");
-            return await Task.Run(() => 
-            {
-                try
-                {
-                    State = EvalState.Working;
-                    var v= Evaluate(expr);
-                    State = EvalState.Finished;
-                    return v;
-                }
-                catch (OperationCanceledException)
-                {
-                    return BuiltinValues.Null;
-                }
-                catch (Exception ex)
-                {
-                    return BuiltinValues.Null;//TODO: Attention
-                    //State = EvalState.Failed;
-                    throw ex;
-                }
-            }
-            ,CancelToken.Token);
         }
 
         public IExpr Evaluate(IExpr expr)
@@ -104,12 +73,15 @@ namespace iExpr.Evaluators
             {
                 return BuiltinValues.Null;
             }
-            catch
+            catch (ExprException ex)
             {
-                return BuiltinValues.Null;//TODO: Attention
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.EvaluateException("Failed to evaluate.", ex);
             }
         }
-
         
         public void AssertNotCancel()
         {
@@ -124,52 +96,38 @@ namespace iExpr.Evaluators
         public T GetVariableValue<T>(string id)
         {
             var p = this;
-            while (p != null && p.IgnoreVariables.Contains(id) == false) p = p.Parent;
-            if (p != null) return default(T);
-            p = this;
-            while (p != null && p.Variables?.ContainsKey(id) != true && p.Constants?.ContainsKey(id) != true) p = p.Parent;
+            while (p != null && p.Variables?.ContainsKey(id) != true) p = p.Parent;
             if (p == null) return default(T);
             else
             {
-                var v = p.Variables?.ContainsKey(id) == true ? p.Variables.Get<T>(id) : p.Constants.Get<T>(id);
+                var v = p.Variables.Get<T>(id);
                 return v;
             }
         }
 
-        public IExpr GetVariableValue(string id)
+        public IValue GetVariableValue(string id)
         {
             var p = this;
-            while (p != null && p.IgnoreVariables.Contains(id) == false) p = p.Parent;
-            if (p != null) return null;
-            p = this;
-            while (p != null && p.Variables?.ContainsKey(id) != true && p.Constants?.ContainsKey(id) != true) p = p.Parent;
+            while (p != null && p.Variables?.ContainsKey(id) != true) p = p.Parent;
             if (p == null) return null;
             else
             {
-                var v = p.Variables?.ContainsKey(id) == true ? p.Variables.Get(id) : p.Constants.Get(id);
+                var v = p.Variables.Get(id);
                 return v;
             }
         }
 
-
-        public void SetVariableValue(string id,object val)
+        public void SetVariableValue(string id,IValue val)
         {
             var p = this;
-            while (p != null && p.Variables?.ContainsKey(id) != true && p.Constants?.ContainsKey(id) != true) p = p.Parent;
+            while (p != null && p.Variables?.ContainsKey(id) != true) p = p.Parent;
             if (p == null)
             {
                 this.Variables.Set(id,val);
             }
             else
             {
-                if(p.Variables?.ContainsKey(id) == true)
-                {
-                    p.Variables.Set(id, val);
-                }
-                else//常量列表中含有id，但仍添加到变量列表中（隐式替换常量（优先计算））
-                {
-                    p.Variables.Set(id, val);
-                }
+                p.Variables.Set(id, val);
             }
         }
     }

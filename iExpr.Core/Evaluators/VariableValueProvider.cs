@@ -29,7 +29,7 @@ namespace iExpr.Evaluators
             else base.Add(key, val);
         }
 
-        public IExpr Get(string key)
+        public IValue Get(string key)
         {
             return this[key];
         }

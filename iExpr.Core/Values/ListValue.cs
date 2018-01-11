@@ -9,37 +9,32 @@ namespace iExpr.Values
     /// <summary>
     /// 列表值
     /// </summary>
-    public class ListValue : CollectionValue
+    public class ListValue : CollectionValue,IList<IValue>
     {
-        /// <summary>
-        /// 列表内容
-        /// </summary>
-        public List<IExpr> Contents { get; set; }
-        protected override IEnumerable<IExpr> _Contents { get => Contents; }
+        private List<CollectionItemValue> values = new List<CollectionItemValue>();
 
-        public override int Count => Contents == null ? 0 : Contents.Count;
+        protected override IEnumerable<IValue> _Contents { get => this; }
 
-        public IExpr this[int index]
+        public bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
+
+        public IValue this[int index]
         {
-            get
-            {
-                return Contents[index];
-            }
-            set
-            {
-                Contents[index] = value;
-            }
+            get => this.values[index];
+            set => this.values[index].Value = value;//TODO: Attetion to this.
         }
-        
+
+        public override int Count => values.Count;
+
         public override string ToString()
         {
-            if (Contents == null) return "[]";
-            return $"[{String.Join(",", Contents.Select(x => x?.ToString()))}]";
+            if (values == null) return "[]";
+            return $"[{String.Join(",", values.Select(x => x.Value?.ToString()))}]";
         }
 
-        public override void Reset(IEnumerable<IExpr> vals = null)
+        public override void Reset(IEnumerable<IValue> vals = null)
         {
-            Contents = new List<IExpr>(vals);
+            this.Clear();
+            foreach (var v in vals) this.Add(v);
         }
 
         public override CollectionValue CreateNew()
@@ -52,7 +47,7 @@ namespace iExpr.Values
 
         }
 
-        public ListValue(IEnumerable<IExpr> exprs):this()
+        public ListValue(IEnumerable<IValue> exprs):this()
         {
             Reset(exprs);
         }
@@ -60,7 +55,60 @@ namespace iExpr.Values
         public override bool Equals(IExpr other)
         {
             if (!(other is ListValue)) return false;
-            return _Contents == (other as ListValue)._Contents;
+            return this.ToString() == (other as ListValue).ToString();
+        }
+
+        public int IndexOf(IValue item)
+        {
+            for(int i = 0; i < values.Count; i++)
+            {
+                if (values[i].Value == item) return i;
+            }
+            return -1;
+        }
+
+        CollectionItemValue GetItemValue(IValue item)
+        {
+            foreach (var x in values)
+                if (x.Value == item) return x;
+            return null;
+        }
+
+        public void Insert(int index, IValue item)
+        {
+            values.Insert(index, new CollectionItemValue(item));
+        }
+
+        public void RemoveAt(int index)
+        {
+            values.RemoveAt(index);
+        }
+
+        public void Add(IValue item)
+        {
+            values.Add(new CollectionItemValue(item));
+        }
+
+        public void Clear()
+        {
+            values.Clear();
+        }
+
+        public bool Contains(IValue item)
+        {
+            return IndexOf(item) != -1;
+        }
+
+        public void CopyTo(IValue[] array, int arrayIndex)
+        {
+            throw new Exceptions.UndefinedExecuteException();
+            //((IList<IValue>)this.values).CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(IValue item)
+        {
+            var id = GetItemValue(item);if (id == null) return true;
+            return values.Remove(id);
         }
     }
 }

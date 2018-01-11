@@ -4,7 +4,7 @@ using System.Text;
 
 namespace iExpr.Exceptions
 {
-    public abstract class ExprException: Exception
+    public class ExprException: Exception
     {
         public ExprException() : base()//调用基类的构造器
         {

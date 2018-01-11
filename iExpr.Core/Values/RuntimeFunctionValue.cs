@@ -8,32 +8,21 @@ namespace iExpr.Values
 {
     public class RuntimeFunctionValue : FunctionValue
     {
-        public override int ArgumentCount { get => VariableNames.Length; protected set => throw new UndefinedExecuteException(); }
+        public override int ArgumentCount { get => VariableNames==null?0: VariableNames.Length; protected set => throw new UndefinedExecuteException(); }
 
         private static IExpr EvaluateExprValue(RuntimeFunctionValue func, FunctionArgument args, EvalContext calculator)
         {
+            if (func.ArgumentCount == 0)
+            {
+                return calculator.Evaluate(func.Expr);
+            }
             var vs = func.VariableNames;
-            if (!(vs?.Length > 0))
+            //List<double> vals = new List<double>();
+            for (int i = 0; i < args.Arguments.Length && i < vs.Length; i++)
             {
-                return calculator.Evaluate(func.Expr);
+                calculator.Variables.Set(vs[i], args.Arguments[i]);
             }
-            else
-            {
-                //List<double> vals = new List<double>();
-                for (int i = 0; i < args.Arguments.Length && i < vs.Length; i++)
-                {
-                    var val = calculator.Evaluate(args.Arguments[i]);
-                    if (val is IValue)
-                    {
-                        calculator.Variables.Set(vs[i], (IValue)val);
-                    }
-                    else//值是一个表达式
-                    {
-                        throw new NotValueException();
-                    }
-                }
-                return calculator.Evaluate(func.Expr);
-            }
+            return calculator.Evaluate(func.Expr);
         }
 
         public override Func<FunctionArgument, EvalContext, IExpr> EvaluateFunc

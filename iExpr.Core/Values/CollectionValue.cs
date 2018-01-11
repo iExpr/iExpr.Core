@@ -1,15 +1,42 @@
-﻿using System;
+﻿using iExpr.Exceptions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace iExpr.Values
 {
-    public abstract class CollectionValue: IValue,IEnumerable<IExpr>
+    internal sealed class CollectionItemValue : ConcreteValue
     {
-        protected abstract IEnumerable<IExpr> _Contents { get; }
+        public override bool IsConstant => base.IsConstant;
 
-        public abstract void Reset(IEnumerable<IExpr> vals = null);
+        public override object Value
+        {
+            get
+            {
+                return base.Value;
+            }
+            set
+            {
+                if (value is IValue)
+                {
+                    base.Value = value;
+                }
+                else throw new ExprException("The item of colletion must be a value (IValue).");
+            }
+        }
+
+        public CollectionItemValue(IValue val)
+        {
+            Value = val;
+        }
+    }
+
+    public abstract class CollectionValue: IValue,IEnumerable<IValue>
+    {
+        protected abstract IEnumerable<IValue> _Contents { get; }
+
+        public abstract void Reset(IEnumerable<IValue> vals = null);
 
         /// <summary>
         /// 创建一个同类型的新对象（用于拷贝等）
@@ -42,7 +69,7 @@ namespace iExpr.Values
             }
         }
 
-        public IEnumerator<IExpr> GetEnumerator()
+        public IEnumerator<IValue> GetEnumerator()
         {
             return _Contents.GetEnumerator();
         }

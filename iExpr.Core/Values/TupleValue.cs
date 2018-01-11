@@ -14,12 +14,13 @@ namespace iExpr.Values
         /// <summary>
         /// 元组内容
         /// </summary>
-        public IExpr[] Contents { get; set; }
-        protected override IEnumerable<IExpr> _Contents { get => Contents; }
+        private IValue[] Contents { get; set; }
+
+        protected override IEnumerable<IValue> _Contents { get => Contents; }
 
         public override int Count => Contents == null ? 0 : Contents.Length;
 
-        public IExpr this[int index]
+        public IValue this[int index]
         {
             get
             {
@@ -27,7 +28,7 @@ namespace iExpr.Values
             }
             set
             {
-                Contents[index] = value;
+                ((CollectionItemValue)Contents[index]).Value = value;
             }
         }
         
@@ -38,9 +39,10 @@ namespace iExpr.Values
             return $"({String.Join(",", Contents.Select(x => x?.ToString()))})";
         }
 
-        public override void Reset(IEnumerable<IExpr> vals=null)
+        public override void Reset(IEnumerable<IValue> vals=null)
         {
-            Contents = vals?.ToArray();
+            if (vals == null) Contents = null;
+            Contents = vals.Select(x => new CollectionItemValue(x)).ToArray();
         }
 
         public override CollectionValue CreateNew()
@@ -53,7 +55,7 @@ namespace iExpr.Values
 
         }
 
-        public TupleValue(IEnumerable<IExpr> exprs) : this()
+        public TupleValue(IEnumerable<IValue> exprs) : this()
         {
             Reset(exprs);
             

@@ -14,5 +14,7 @@ namespace iExpr
         /// </summary>
         bool IsConstant { get; }
 
+
+
     }
 }

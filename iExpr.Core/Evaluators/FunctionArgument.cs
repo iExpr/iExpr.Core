@@ -6,17 +6,12 @@ namespace iExpr.Evaluators
 {
     public class FunctionArgument
     {
-        public IExpr[] Arguments { get; private set; }
+        public IValue[] Arguments { get; private set; }
+        
 
-        public IExpr[] Indexes { get; private set; }
-
-        public IExpr[] Contents{ get; private set; }
-
-        public FunctionArgument(IExpr[] args,IExpr[] indexes=null,IExpr[] contents=null)
+        public FunctionArgument(IValue[] args)
         {
             Arguments = args;
-            Indexes = indexes;
-            Contents = contents;
         }
     }
 }
