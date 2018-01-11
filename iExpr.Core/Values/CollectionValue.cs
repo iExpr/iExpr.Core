@@ -31,7 +31,7 @@ namespace iExpr.Values
                     if (v == null) return true;
                     switch (v)
                     {
-                        case ConcreteToken c:
+                        case IValue c:
                             if (c.IsConstant == false) return false;
                             break;
                         default:
@@ -52,11 +52,6 @@ namespace iExpr.Values
             return _Contents.GetEnumerator();
         }
 
-        public override string ToString()
-        {
-            return ToValueString();
-        }
-
-        public abstract string ToValueString();
+        public abstract bool Equals(IExpr other);
     }
 }

@@ -6,9 +6,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace iExpr.Calculators
+namespace iExpr.Evaluators
 {
-    public class ExprEvaluator
+    public interface IExprEvaluator
+    {
+        IExpr EvaluateNodeBinaryOperation(ExprNodeBinaryOperation expr, EvalContext environment);
+        IExpr EvaluateNodeAccess(ExprNodeAccess expr, EvalContext environment);
+        IExpr EvaluateNodeCombine(ExprNodeCombine expr, EvalContext environment);
+        IExpr EvaluateVariable(VariableToken expr, EvalContext environment);
+        IExpr Evaluate(IExpr expr, EvalContext context);
+    }
+
+    public class ExprEvaluator : IExprEvaluator
     {
         static ExprEvaluator exprEvaluator;
         public static ExprEvaluator Evaluator
@@ -20,9 +29,8 @@ namespace iExpr.Calculators
             }
         }
 
-        protected virtual IExpr EvaluateNode(ExprNode expr, EvalContext environment)
+        public virtual IExpr EvaluateBinaryOperation(ExprNodeBinaryOperation expr, EvalContext environment)
         {
-            
             List<IExpr> args = new List<IExpr>();
             switch (expr.Operation)
             {
@@ -69,9 +77,9 @@ namespace iExpr.Calculators
             }
         }
 
-        protected virtual IExpr EvaluateConcrete(ConcreteToken expr, EvalContext environment)
+        public virtual IExpr EvaluateConcrete(ConcreteToken expr, EvalContext environment)
         {
-            if (expr.Value == null) if (environment.NullValue != null) return environment.NullValue; else return expr;
+            if (expr.Value == null) return BuiltinValues.Null;// if (environment.NullValue != null) return environment.NullValue; else return expr;
             switch (expr.Value)
             {
                 case CollectionValue ls:
@@ -108,9 +116,9 @@ namespace iExpr.Calculators
             return expr;
         }
 
-        
 
-        protected virtual IExpr EvaluateVariable(VariableToken expr, EvalContext environment)
+
+        public virtual IExpr EvaluateVariable(VariableToken expr, EvalContext environment)
         {
             var v = environment.GetVariableValue(expr.ID);
             if (v == null) return expr;
@@ -145,7 +153,7 @@ namespace iExpr.Calculators
             }
             /*catch (OperationCanceledException)
             {
-                return ConcreteValue.Null;
+                return BuiltinValues.Null;
             }*/
             catch (OperationCanceledException)
             {

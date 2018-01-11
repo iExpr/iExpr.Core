@@ -17,6 +17,6 @@ namespace iExpr
         /// 转换成表达式字符串
         /// </summary>
         /// <returns></returns>
-        string ToExprString();
+        string ToString();
     }
 }

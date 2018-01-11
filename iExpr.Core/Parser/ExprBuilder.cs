@@ -20,7 +20,7 @@ namespace iExpr.Parser
         /// 
         /// </summary>
         /// <param name="syms">符号列表</param>
-        public ExprBuilder(EnvironmentProvider syms)
+        public ExprBuilder(ParseEnvironment syms)
         {
             Symbols = syms;
         }
@@ -28,7 +28,7 @@ namespace iExpr.Parser
         /// <summary>
         /// 获取或设置符号列表
         /// </summary>
-        public EnvironmentProvider Symbols { get; set; }
+        public ParseEnvironment Symbols { get; set; }
 
         /// <summary>
         /// 生成符号解析
@@ -315,7 +315,7 @@ namespace iExpr.Parser
             {
                 if (String.IsNullOrEmpty(expr))
                 {
-                    return ConcreteToken.Null;
+                    return BuiltinValues.Null;
                 }
                 expr = $"({expr})";
 
@@ -387,7 +387,7 @@ namespace iExpr.Parser
                                     }
                                 }
                                 if(val.Count==0 || val.Peek().id<p.Item2){//空括号
-                                    val.Push((ConcreteToken.Null, cur-1));
+                                    val.Push((BuiltinValues.Null, cur-1));
                                 }
                             }
                             break;
@@ -528,7 +528,7 @@ namespace iExpr.Parser
         }
                 }
                 if (val.Count > 1) throw new Exception("Not a complete expr");
-                if (val.Count == 0) return ConcreteToken.Null;
+                if (val.Count == 0) return BuiltinValues.Null;
                 return val.Pop().val;
             }
             catch (Exception ex)

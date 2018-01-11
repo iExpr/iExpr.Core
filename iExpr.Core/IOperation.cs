@@ -1,4 +1,4 @@
-﻿using iExpr.Calculators;
+﻿using iExpr.Evaluators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,7 +84,7 @@ namespace iExpr
         /// <summary>
         /// 转换表达式字符串实现
         /// </summary>
-        Func<IExpr[], string> ToExprStringFunc { get; }
+        Func<IExpr[], string> ToStringFunc { get; }
 
         /// <summary>
         /// 运算
@@ -99,6 +99,6 @@ namespace iExpr
         /// </summary>
         /// <param name="exps">参数</param>
         /// <returns></returns>
-        string ToExprString(params IExpr[] exps);
+        string ToString(params IExpr[] exps);
     }
 }

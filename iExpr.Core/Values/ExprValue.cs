@@ -27,9 +27,15 @@ namespace iExpr.Values
             }
         }
 
-        public string ToValueString()//TODO: 注意这里实现不同，不是()=>()实现
+        public bool Equals(IExpr other)
         {
-            return Expr?.ToExprString();
+            if (!(other is ExprValue)) return false;
+            return other.ToString() == this.ToString();
+        }
+
+        public override string ToString()//TODO: 注意这里实现不同，不是()=>()实现
+        {
+            return Expr?.ToString();
         }
     }
 }

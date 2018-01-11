@@ -12,12 +12,5 @@ namespace iExpr
     public abstract class ExprToken : IExpr
     {
         public abstract bool Equals(IExpr other);
-
-        public abstract string ToExprString();
-
-        public override string ToString()
-        {
-            return ToExprString();
-        }
     }
 }

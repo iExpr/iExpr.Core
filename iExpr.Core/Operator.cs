@@ -1,4 +1,4 @@
-﻿using iExpr.Calculators;
+﻿using iExpr.Evaluators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace iExpr
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        public static string BlockToExprString(IExpr v)
+        public static string BlockToString(IExpr v)
         {
             if (v is ExprToken) return v.ToString();
             else return $"({v.ToString()})";
@@ -31,7 +31,7 @@ namespace iExpr
         public bool CanPreparameter { get; private set; }
 
         public Func<IExpr[], EvalContext, IExpr> EvaluateFunc { get; private set; }
-        public Func<IExpr[], string> ToExprStringFunc { get; private set; }
+        public Func<IExpr[], string> ToStringFunc { get; private set; }
 
         public Operator(string keyWord, Func<IExpr[], EvalContext, IExpr> calculate, Func<IExpr[], string> toexprString = null, double priority = 0, Association association = Association.Left, int quantityNumber = -1, uint[] selfCalculate = null, bool canprearg = false)
         {
@@ -40,11 +40,11 @@ namespace iExpr
             CanPreparameter = canprearg;
             if (toexprString != null)
             {
-                ToExprStringFunc = toexprString;
+                ToStringFunc = toexprString;
             }
             else
             {
-                ToExprStringFunc = (IExpr[] args) => string.Join(Keyword, args.Select((IExpr exp) => Operator.BlockToExprString(exp)));
+                ToStringFunc = (IExpr[] args) => string.Join(Keyword, args.Select((IExpr exp) => Operator.BlockToString(exp)));
             }
             Priority = priority;
             QuantityNumber = quantityNumber;
@@ -62,13 +62,13 @@ namespace iExpr
             return EvaluateFunc.Invoke(exps,cal);
         }
 
-        public string ToExprString(params IExpr[] exps)
+        public string ToString(params IExpr[] exps)
         {
             /*if (QuantityNumber != -1)
             {
                 if (exps.Length != QuantityNumber) throw new Exception("The number of quantitys is wrong. It should be " + QuantityNumber.ToString());
             }*/
-            return ToExprStringFunc.Invoke(exps);
+            return ToStringFunc.Invoke(exps);
         }
     }
 }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace iExpr
 {
-
     /// <summary>
     /// 变量值
     /// </summary>
@@ -38,23 +37,23 @@ namespace iExpr
         /// </summary>
         public string ID { get; set; }
 
-        public IExpr[] Attached { get; set; }
+        public ModifierToken[] Attached { get; set; }
 
         public VariableToken(string id)
         {
             ID = id;
         }
 
-        public VariableToken(string id, IExpr attached0,params IExpr[] attached) : this(id)
+        public VariableToken(string id, ModifierToken attached0,params ModifierToken[] attached) : this(id)
         {
-            List<IExpr> l = new List<IExpr>
+            List<ModifierToken> l = new List<ModifierToken>
             {
                 attached0
             }; l.AddRange(attached);
             Attached = l.ToArray() ;
         }
 
-        public VariableToken(string id, params IExpr[] attached) : this(id)
+        public VariableToken(string id, params ModifierToken[] attached) : this(id)
         {
             Attached = attached;
         }
@@ -65,7 +64,7 @@ namespace iExpr
         }
 
 
-        public override string ToExprString()
+        public override string ToString()//TODO: ModifierToken
         {
             return ID;
             
@@ -79,7 +78,7 @@ namespace iExpr
         public override bool Equals(IExpr _other)
         {
             var other = _other as VariableToken;
-            return other != null && other.ToExprString() == this.ToExprString();
+            return other != null && other.ToString() == this.ToString();
         }
 
         public override int GetHashCode()

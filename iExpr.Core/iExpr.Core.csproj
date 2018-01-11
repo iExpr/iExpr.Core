@@ -11,13 +11,14 @@
     <RepositoryUrl>https://github.com/StardustDL/iExpr.Core</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageProjectUrl>https://github.com/StardustDL/iExpr.Core/wiki</PackageProjectUrl>
-    <Copyright>GPLv3</Copyright>
+    <Copyright>LGPL-3.0</Copyright>
     <PackageLicenseUrl>https://github.com/StardustDL/iExpr.Core/blob/master/LICENSE</PackageLicenseUrl>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>sddl_iExprCore.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <Version>0.3.0</Version>
     <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <PackageIconUrl>https://github.com/iExpr/iExpr.Core/blob/master/resources/images/core.png?raw=true</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -36,12 +37,22 @@
 
   <ItemGroup>
     <Compile Remove="ChildExprValue.cs" />
+    <Compile Remove="ConcreteToken.cs" />
     <Compile Remove="ExprTree.cs" />
+    <Compile Remove="Function.cs" />
     <Compile Remove="ICalculator.cs" />
+    <Compile Remove="Operations\CoreEnvironmentProvider.cs" />
+    <Compile Remove="Operations\CoreOperations.cs" />
+    <Compile Remove="Operations\ExprFunction.cs" />
+    <Compile Remove="Values\ExprValue.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Operations\" />
   </ItemGroup>
 
 </Project>

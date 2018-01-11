@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace iExpr.Calculators
+namespace iExpr.Evaluators
 {
     public enum EvalState
     {
@@ -19,15 +19,11 @@ namespace iExpr.Calculators
 
     public class EvalContext
     {
-        /// <summary>
-        /// 空值
-        /// </summary>
-        public IExpr NullValue { get; set; }
 
         /// <summary>
         /// 运算提供者
         /// </summary>
-        public ExprEvaluator Evaluator { get; set; }
+        public IExprEvaluator Evaluator { get; set; }
 
         /// <summary>
         /// 获取一个新的子环境
@@ -35,23 +31,15 @@ namespace iExpr.Calculators
         /// <returns></returns>
         public virtual EvalContext GetChild()
         {
-            return new EvalContext() { Evaluator=Evaluator,CancelToken=CancelToken, NullValue = NullValue, Parent = this, Constants = Constants };
+            return new EvalContext() { Evaluator=Evaluator,CancelToken=CancelToken, Parent = this};
         }
 
         /// <summary>
         /// 变量列表
         /// </summary>
         public VariableValueProvider Variables { get; set; } = new VariableValueProvider();
-
-        /// <summary>
-        /// 常量集合
-        /// </summary>
-        public ConstantValueProvider Constants { get; set; }
-
-        /// <summary>
-        /// 忽视变量列表
-        /// </summary>
-        public HashSet<string> IgnoreVariables { get; set; } = new HashSet<string>();
+        
+        //public HashSet<string> IgnoreVariables { get; set; } = new HashSet<string>();
 
         /// <summary>
         /// 父级运算环境
@@ -94,32 +82,16 @@ namespace iExpr.Calculators
                 }
                 catch (OperationCanceledException)
                 {
-                    return ConcreteToken.Null;
+                    return BuiltinValues.Null;
                 }
                 catch (Exception ex)
                 {
-                    return ConcreteToken.Null;//TODO: Attention
+                    return BuiltinValues.Null;//TODO: Attention
                     //State = EvalState.Failed;
                     throw ex;
                 }
             }
             ,CancelToken.Token);
-        }
-
-        public IExpr EvaluateExprValue(ExprValue func, params IExpr[] args)
-        {
-            try
-            {
-                return Evaluator.EvaluateExprValue(func, args, this);
-            }
-            catch (OperationCanceledException)
-            {
-                return ConcreteToken.Null;
-            }
-            catch
-            {
-                return ConcreteToken.Null;//TODO: Attention
-            }
         }
 
         public IExpr Evaluate(IExpr expr)
@@ -130,11 +102,11 @@ namespace iExpr.Calculators
             }
             catch(OperationCanceledException)
             {
-                return ConcreteToken.Null;
+                return BuiltinValues.Null;
             }
             catch
             {
-                return ConcreteToken.Null;//TODO: Attention
+                return BuiltinValues.Null;//TODO: Attention
             }
         }
 

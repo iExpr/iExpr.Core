@@ -19,10 +19,10 @@ namespace iExpr.Values
 
         public override int Count => Contents == null ? 0 : Contents.Count;
 
-        public override string ToValueString()
+        public override string ToString()
         {
             if (Contents == null) return "{}";
-            return $"{{{String.Join(",", Contents.Select(x => x?.ToExprString()))}}}";
+            return $"{{{String.Join(",", Contents.Select(x => x?.ToString()))}}}";
         }
 
         public override void Reset(IEnumerable<IExpr> vals = null)
@@ -45,6 +45,12 @@ namespace iExpr.Values
             Reset(exprs);
             
         }
-        
+
+        public override bool Equals(IExpr other)
+        {
+            if (!(other is SetValue)) return false;
+            return _Contents == (other as SetValue)._Contents;
+        }
+
     }
 }

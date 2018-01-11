@@ -1,4 +1,4 @@
-﻿using iExpr.Calculators;
+﻿using iExpr.Evaluators;
 using iExpr.Parser;
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace iExpr.Helpers
         /// </summary>
         /// <param name="syms">符号列表</param>
         /// <param name="nullValue">空值的转换值</param>
-        public ExprWorker(EnvironmentProvider syms,IExpr nullValue,Calculators.ExprEvaluator evaluator)
+        public ExprWorker(ParseEnvironment syms,IExpr nullValue,Evaluators.ExprEvaluator evaluator)
         {
             Builder = new ExprBuilder() { Symbols = syms };
 

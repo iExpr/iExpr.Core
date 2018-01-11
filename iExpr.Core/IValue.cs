@@ -7,14 +7,8 @@ namespace iExpr
     /// <summary>
     /// 值类型
     /// </summary>
-    public interface IValue
+    public interface IValue : IExpr
     {
-        /// <summary>
-        /// 转换为值的字符串
-        /// </summary>
-        /// <returns></returns>
-        string ToValueString();
-
         /// <summary>
         /// 判断是否为常量值
         /// </summary>

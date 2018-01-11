@@ -1,4 +1,5 @@
 ﻿using iExpr.Helpers;
+using iExpr.Parser;
 using iExpr.Values;
 using System;
 using System.Collections.Generic;
@@ -87,10 +88,38 @@ namespace iExpr.Parser
         }
     }
 
+    public class ModifierList
+    {
+        Dictionary<Guid, ModifierToken> gid = new Dictionary<Guid, ModifierToken>();
+        Dictionary<string, Guid> sid = new Dictionary<string, Guid>();
+
+        public void Add(params ModifierToken[] val)
+        {
+            foreach (var v in val)
+            {
+                gid.Add(v.ID, v);
+                sid.Add(v.Content, v.ID);
+            }
+        }
+    }
+
+    public class ConstantList : Dictionary<string, ConstantToken>
+    {
+        //Dictionary<string, ConstantToken> sid = new Dictionary<string, ConstantToken>();
+
+        public void Add(params ConstantToken[] val)
+        {
+            foreach (var v in val)
+            {
+                this.Add(v.ID, v);
+            }
+        }
+    }
+
     /// <summary>
-    /// 符号提供者
+    /// 环境提供者
     /// </summary>
-    public abstract class EnvironmentProvider
+    public abstract class ParseEnvironment
     {
         /// <summary>
         /// 获取或设置所有运算
@@ -98,9 +127,14 @@ namespace iExpr.Parser
         protected OperationList Operations { get; set; }
 
         /// <summary>
+        /// 获取所有修饰符
+        /// </summary>
+        public string[] Modifiers { get; set; }
+
+        /// <summary>
         /// 获取或设置所有常量符
         /// </summary>
-        protected ConstantValueProvider ConstantExpr { get; set; }
+        public string[] Constants { get; protected set; }
 
         /// <summary>
         /// 运算关键字组成的字典树
@@ -113,12 +147,6 @@ namespace iExpr.Parser
         /// 获取所有符号
         /// </summary>
         public IReadOnlyDictionary<string, IOperation> Symbols { get => symbols; }
-
-        /// <summary>
-        /// 获取所有符号
-        /// </summary>
-        public ConstantValueProvider Constants { get => ConstantExpr; }
-
 
         /// <summary>
         /// 自动构建字典树和符号列表
@@ -216,8 +244,6 @@ namespace iExpr.Parser
             return IsVariableBeginChar(c) == false && IsOperationBeginChar(c) == false;
         }
 
-
-
         public virtual bool IsOperationBeginChar(char c)
         {
             return OperationTrie.ContainsKey(c);
@@ -238,7 +264,6 @@ namespace iExpr.Parser
         {
             return OperationTrie.ContainsKey(begin);
         }*/
-
         
         /// <summary>
         /// 获取识别后的整体值

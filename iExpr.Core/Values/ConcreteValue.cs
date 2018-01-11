@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace iExpr
+namespace iExpr.Values
 {
     /// <summary>
     /// 具体值
     /// </summary>
-    public class ConcreteToken : ExprToken
+    public class ConcreteValue : IValue
     {
-        public static readonly ConcreteToken Null = new ConcreteToken(null);
-
         /// <summary>
         /// 判断是否是常量值
         /// </summary>
@@ -22,9 +18,6 @@ namespace iExpr
             {
                 switch (Value)
                 {
-                    case IExpr exp:
-                        if (exp is ConcreteToken) return (exp as ConcreteToken).IsConstant;
-                        else return false;
                     case IValue val:
                         return val.IsConstant;
                     default:
@@ -33,18 +26,17 @@ namespace iExpr
             }
         }
 
-        public ConcreteToken(object val)
+        public ConcreteValue(object val)
         {
             Value = val;
         }
 
-        public ConcreteToken() : this(null) { }
+        public ConcreteValue() : this(null) { }
 
         /// <summary>
         /// 值
         /// </summary>
         public object Value { get; set; }
-        
 
         public override string ToString()
         {
@@ -57,14 +49,9 @@ namespace iExpr
             return Value.ToString();
         }
 
-        public override bool Equals(object obj)
+        public bool Equals(IExpr _other)
         {
-            return Equals(obj as ConcreteToken);
-        }
-
-        public override bool Equals(IExpr _other)
-        {
-            var other = _other as ConcreteToken;
+            var other = _other as ConcreteValue;
             return other != null && other.ToString() == this.ToString();
         }
 
@@ -75,12 +62,18 @@ namespace iExpr
             return hashCode;
         }
 
-        public static bool operator ==(ConcreteToken node1, ConcreteToken node2)
+        public override bool Equals(object obj)
         {
-            return EqualityComparer<ConcreteToken>.Default.Equals(node1, node2);
+            if (obj is IExpr) return Equals((IExpr)obj);
+            else return false;
         }
 
-        public static bool operator !=(ConcreteToken node1, ConcreteToken node2)
+        public static bool operator ==(ConcreteValue node1, ConcreteValue node2)
+        {
+            return EqualityComparer<ConcreteValue>.Default.Equals(node1, node2);
+        }
+
+        public static bool operator !=(ConcreteValue node1, ConcreteValue node2)
         {
             return !(node1 == node2);
         }
