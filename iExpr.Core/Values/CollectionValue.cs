@@ -18,25 +18,25 @@ namespace iExpr.Values
             }
             set
             {
-                if (value is IValue)
-                {
-                    base.Value = value;
-                }
-                else throw new ExprException("The item of colletion must be a value (IValue).");
+                object v = null;
+                if (value is ConcreteValue) v = (value as ConcreteValue).Value;
+                else v = value;
+                base.Value = v;
+                //else throw new ExprException("The item of colletion must be a expr (IExpr).");
             }
         }
 
-        public CollectionItemValue(IValue val)
+        public CollectionItemValue(object val)
         {
             Value = val;
         }
     }
 
-    public abstract class CollectionValue: IValue,IEnumerable<IValue>
+    public abstract class CollectionValue: IValue,IEnumerable<IExpr>
     {
-        protected abstract IEnumerable<IValue> _Contents { get; }
+        protected abstract IEnumerable<IExpr> _Contents { get; }
 
-        public abstract void Reset(IEnumerable<IValue> vals = null);
+        public abstract void Reset(IEnumerable<IExpr> vals = null);
 
         /// <summary>
         /// 创建一个同类型的新对象（用于拷贝等）
@@ -69,7 +69,7 @@ namespace iExpr.Values
             }
         }
 
-        public IEnumerator<IValue> GetEnumerator()
+        public IEnumerator<IExpr> GetEnumerator()
         {
             return _Contents.GetEnumerator();
         }

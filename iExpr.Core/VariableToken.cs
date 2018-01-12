@@ -12,26 +12,7 @@ namespace iExpr
     /// </summary>
     public class VariableToken : ExprToken
     {
-        public static bool IsVariableChar(char c)
-        {
-            return c == '_' || char.IsLetterOrDigit(c);// || c == '.';
-        }
-
-        public static bool IsVariableBeginChar(char c)
-        {
-            return IsVariableChar(c) && char.IsDigit(c) == false;
-        }
-
-        public static bool IsVariable(string s)
-        {
-            foreach (var v in s)
-            {
-                if (IsVariableChar(v) == false) return false;
-            }
-            return true;
-        }
         
-
         /// <summary>
         /// 变量标识符
         /// </summary>

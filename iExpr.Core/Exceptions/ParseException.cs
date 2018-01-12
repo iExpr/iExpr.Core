@@ -10,11 +10,11 @@ namespace iExpr.Exceptions
         public ParseException() : base()//调用基类的构造器
         {
         }
-        public ParseException(string expr,string message) : base(message)//调用基类的构造器
+        public ParseException(string message,string expr=null) : base(message)//调用基类的构造器
         {
             FailedExpr = expr;
         }
-        public ParseException(string expr, string message, Exception innerException) : base(message, innerException)//调用基类的构造器
+        public ParseException(string message, Exception innerException,string expr=null) : base(message, innerException)//调用基类的构造器
         {
             FailedExpr = expr;
         }

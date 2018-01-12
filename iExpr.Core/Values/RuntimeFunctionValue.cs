@@ -35,8 +35,10 @@ namespace iExpr.Values
 
         public string[] VariableNames { get; set; }
 
-        public RuntimeFunctionValue()
+        public RuntimeFunctionValue(IExpr expr,params string[] variableNames)
         {
+            Expr = expr;
+            VariableNames = variableNames;
             EvaluateFunc = new Func<FunctionArgument, EvalContext, IExpr>((a, c) => EvaluateExprValue(this, a, c));
         }
 

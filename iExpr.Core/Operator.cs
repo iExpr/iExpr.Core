@@ -24,7 +24,7 @@ namespace iExpr
         }
 
         public string Keyword { get; private set; }
-        public int QuantityNumber { get; private set; }
+        public int ArgumentCount { get; private set; }
         public Association Association { get; private set; }
         public double Priority { get; private set; }
         public uint[] SelfCalculate { get; private set; }
@@ -47,13 +47,13 @@ namespace iExpr
                 ToStringFunc = (IExpr[] args) => string.Join(Keyword, args.Select((IExpr exp) => Operator.BlockToString(exp)));
             }
             Priority = priority;
-            QuantityNumber = quantityNumber;
+            ArgumentCount = quantityNumber;
             Association = association;
             SelfCalculate = selfCalculate;
 
         }
 
-        public IExpr Calculate(EvalContext cal,params IExpr[] exps)
+        public IExpr Calculate(EvalContext cal, IExpr[] exps)
         {
             /*if (QuantityNumber != -1)
             {
@@ -62,7 +62,7 @@ namespace iExpr
             return EvaluateFunc.Invoke(exps,cal);
         }
 
-        public string ToString(params IExpr[] exps)
+        public string ToString(IExpr[] exps)
         {
             /*if (QuantityNumber != -1)
             {

@@ -40,19 +40,15 @@
     <Compile Remove="ConcreteToken.cs" />
     <Compile Remove="ExprTree.cs" />
     <Compile Remove="Function.cs" />
+    <Compile Remove="Helpers\ExprWorker.cs" />
     <Compile Remove="ICalculator.cs" />
-    <Compile Remove="Operations\CoreEnvironmentProvider.cs" />
-    <Compile Remove="Operations\CoreOperations.cs" />
-    <Compile Remove="Operations\ExprFunction.cs" />
+    <Compile Remove="Exprs.Core\CoreEnvironmentProvider.cs" />
+    <Compile Remove="Exprs.Core\ExprFunction.cs" />
     <Compile Remove="Values\ExprValue.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Operations\" />
   </ItemGroup>
 
 </Project>

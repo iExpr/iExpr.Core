@@ -9,14 +9,14 @@ namespace iExpr.Values
     /// <summary>
     /// 集合值
     /// </summary>
-    public class SetValue : CollectionValue,ISet<IValue>
+    public class SetValue : CollectionValue,ISet<IExpr>
     {
         /// <summary>
         /// 集合内容
         /// </summary>
-        private HashSet<IValue> values = new HashSet<IValue>();
+        private HashSet<IExpr> values = new HashSet<IExpr>();
 
-        protected override IEnumerable<IValue> _Contents { get => this; }
+        protected override IEnumerable<IExpr> _Contents { get => this; }
 
         public bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
 
@@ -28,7 +28,7 @@ namespace iExpr.Values
             return $"{{{String.Join(",", values.Select(x => x?.ToString()))}}}";
         }
 
-        public override void Reset(IEnumerable<IValue> vals = null)
+        public override void Reset(IEnumerable<IExpr> vals = null)
         {
             this.Clear();
             foreach (var v in vals) this.Add(v);
@@ -44,7 +44,7 @@ namespace iExpr.Values
 
         }
 
-        public SetValue(IEnumerable<IValue> exprs) : this()
+        public SetValue(IEnumerable<IExpr> exprs) : this()
         {
             Reset(exprs);
         }
@@ -55,84 +55,84 @@ namespace iExpr.Values
             return this.ToString() == (other as SetValue).ToString();
         }
 
-        public bool Add(IValue item)
+        public bool Add(IExpr item)
         {
-            return ((ISet<IValue>)values).Add(item);
+            return ((ISet<IExpr>)values).Add(item);
         }
 
-        public void ExceptWith(IEnumerable<IValue> other)
+        public void ExceptWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IValue>)values).ExceptWith(other);
+            ((ISet<IExpr>)values).ExceptWith(other);
         }
 
-        public void IntersectWith(IEnumerable<IValue> other)
+        public void IntersectWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IValue>)values).IntersectWith(other);
+            ((ISet<IExpr>)values).IntersectWith(other);
         }
 
-        public bool IsProperSubsetOf(IEnumerable<IValue> other)
+        public bool IsProperSubsetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IValue>)values).IsProperSubsetOf(other);
+            return ((ISet<IExpr>)values).IsProperSubsetOf(other);
         }
 
-        public bool IsProperSupersetOf(IEnumerable<IValue> other)
+        public bool IsProperSupersetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IValue>)values).IsProperSupersetOf(other);
+            return ((ISet<IExpr>)values).IsProperSupersetOf(other);
         }
 
-        public bool IsSubsetOf(IEnumerable<IValue> other)
+        public bool IsSubsetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IValue>)values).IsSubsetOf(other);
+            return ((ISet<IExpr>)values).IsSubsetOf(other);
         }
 
-        public bool IsSupersetOf(IEnumerable<IValue> other)
+        public bool IsSupersetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IValue>)values).IsSupersetOf(other);
+            return ((ISet<IExpr>)values).IsSupersetOf(other);
         }
 
-        public bool Overlaps(IEnumerable<IValue> other)
+        public bool Overlaps(IEnumerable<IExpr> other)
         {
-            return ((ISet<IValue>)values).Overlaps(other);
+            return ((ISet<IExpr>)values).Overlaps(other);
         }
 
-        public bool SetEquals(IEnumerable<IValue> other)
+        public bool SetEquals(IEnumerable<IExpr> other)
         {
-            return ((ISet<IValue>)values).SetEquals(other);
+            return ((ISet<IExpr>)values).SetEquals(other);
         }
 
-        public void SymmetricExceptWith(IEnumerable<IValue> other)
+        public void SymmetricExceptWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IValue>)values).SymmetricExceptWith(other);
+            ((ISet<IExpr>)values).SymmetricExceptWith(other);
         }
 
-        public void UnionWith(IEnumerable<IValue> other)
+        public void UnionWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IValue>)values).UnionWith(other);
+            ((ISet<IExpr>)values).UnionWith(other);
         }
 
-        void ICollection<IValue>.Add(IValue item)
+        void ICollection<IExpr>.Add(IExpr item)
         {
-            ((ISet<IValue>)values).Add(item);
+            ((ISet<IExpr>)values).Add(item);
         }
 
         public void Clear()
         {
-            ((ISet<IValue>)values).Clear();
+            ((ISet<IExpr>)values).Clear();
         }
 
-        public bool Contains(IValue item)
+        public bool Contains(IExpr item)
         {
-            return ((ISet<IValue>)values).Contains(item);
+            return ((ISet<IExpr>)values).Contains(item);
         }
 
-        public void CopyTo(IValue[] array, int arrayIndex)
+        public void CopyTo(IExpr[] array, int arrayIndex)
         {
-            ((ISet<IValue>)values).CopyTo(array, arrayIndex);
+            ((ISet<IExpr>)values).CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(IValue item)
+        public bool Remove(IExpr item)
         {
-            return ((ISet<IValue>)values).Remove(item);
+            return ((ISet<IExpr>)values).Remove(item);
         }
     }
 }

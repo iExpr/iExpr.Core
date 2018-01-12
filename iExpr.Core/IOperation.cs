@@ -57,7 +57,7 @@ namespace iExpr
         /// <summary>
         /// 参数个数
         /// </summary>
-        int QuantityNumber { get; }
+        int ArgumentCount { get; }
 
         /// <summary>
         /// 结合性
@@ -92,13 +92,13 @@ namespace iExpr
         /// <param name="cal">运算环境</param>
         /// <param name="exps">参数</param>
         /// <returns></returns>
-        IExpr Calculate(EvalContext cal, params IExpr[] exps);
+        IExpr Calculate(EvalContext cal, IExpr[] exps);
 
         /// <summary>
         /// 转换成表达式字符串
         /// </summary>
         /// <param name="exps">参数</param>
         /// <returns></returns>
-        string ToString(params IExpr[] exps);
+        string ToString(IExpr[] exps);
     }
 }

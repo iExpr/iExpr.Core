@@ -18,7 +18,7 @@ namespace iExpr.Evaluators
         IExpr EvaluateNodeContent(ExprNodeContent expr, EvalContext environment);
         IExpr EvaluateVariable(VariableToken expr, EvalContext environment);
         IExpr EvaluateColletionValue(CollectionValue expr, EvalContext environment);*/
-        IExpr Evaluate(IExpr expr, EvalContext context);
+        IExpr Evaluate(IExpr expr, EvalContext context, bool evalConstant = false);
         
     }
 
@@ -39,7 +39,7 @@ namespace iExpr.Evaluators
         /// </summary>
         /// <param name="expr"></param>
         /// <returns></returns>
-        public virtual IExpr Evaluate(IExpr expr,EvalContext context)
+        public virtual IExpr Evaluate(IExpr expr,EvalContext context,bool evalConstant=false)
         {
             try
             {
@@ -56,10 +56,18 @@ namespace iExpr.Evaluators
                         return EvaluateNodeIndex(o, context);
                     case ExprNodeContent o:
                         return EvaluateNodeContent(o, context);
+                    case ConstantToken o:
+                        if (evalConstant)
+                            return o.Value;
+                        else return o;
                     case VariableToken o:
                         return EvaluateVariable(o, context);
                     case CollectionValue o:
                         return EvaluateColletionValue(o, context);
+                    case FunctionValue o:
+                        return o;
+                    case ConcreteValue o:
+                        return o;
                     default:
                         throw new EvaluateException("Can't evaluate this kind of expr.");
                 }
@@ -131,9 +139,11 @@ namespace iExpr.Evaluators
 
         public static IExpr EvaluateNodeCall(ExprNodeCall expr, EvalContext environment)
         {
-            if (!(expr.HeadExpr is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
+            var head = environment.Evaluate(expr.HeadExpr);
+            //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
+            if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
             var cs = environment.GetChild();//开辟一个子环境
-            var func = expr.HeadExpr as FunctionValue;
+            var func = head as FunctionValue;
             if (func.ArgumentCount == 0) return func.EvaluateFunc(null, cs);
             List<IValue> args = new List<IValue>();
             foreach(var v in expr.Children)
@@ -162,7 +172,8 @@ namespace iExpr.Evaluators
                 throw new EvaluateException("The index content is invalid.");
             var pind = environment.Evaluate(expr.Children[0]) as IValue;
             int ind = ConcreteValueHelper.GetValue<int>(pind);//TODO: Check for null
-            switch (expr.HeadExpr)
+            var head = environment.Evaluate(expr.HeadExpr);
+            switch (head)
             {
                 case ListValue l:
                     return l[ind];

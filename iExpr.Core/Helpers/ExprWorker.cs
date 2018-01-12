@@ -40,7 +40,7 @@ namespace iExpr.Helpers
         {
             Builder = new ExprBuilder() { Symbols = syms };
 
-            EvalEnvironment = new EvalEnvironment() { Evaluator = evaluator,Constants=syms.Constants };
+            EvalEnvironment = new EvalEnvironment() { Evaluator = evaluator };
         }
 
         /// <summary>

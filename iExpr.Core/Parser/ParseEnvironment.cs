@@ -31,9 +31,17 @@ namespace iExpr.Parser
         /// </summary>
         ConstantValue,
         /// <summary>
+        /// 基本值
+        /// </summary>
+        BasicValue,
+        /// <summary>
         /// 整体值
         /// </summary>
         UnionValue,
+        /// <summary>
+        /// 修饰符
+        /// </summary>
+        Modifier,
         //ChildExpr,
         /// <summary>
         /// 整体值指示符
@@ -43,6 +51,10 @@ namespace iExpr.Parser
         /// 整体值定界符
         /// </summary>
         UnionEdge,
+        /// <summary>
+        /// 访问符
+        /// </summary>
+        Access,
         /// <summary>
         /// 逗号
         /// </summary>
@@ -87,18 +99,16 @@ namespace iExpr.Parser
             }
         }
     }
-
-    public class ModifierList
+    
+    public class ModifierList : Dictionary<string, ModifierToken>
     {
-        Dictionary<Guid, ModifierToken> gid = new Dictionary<Guid, ModifierToken>();
-        Dictionary<string, Guid> sid = new Dictionary<string, Guid>();
+        //Dictionary<string, ConstantToken> sid = new Dictionary<string, ConstantToken>();
 
         public void Add(params ModifierToken[] val)
         {
             foreach (var v in val)
             {
-                gid.Add(v.ID, v);
-                sid.Add(v.Content, v.ID);
+                this.Add(v.Content, v);
             }
         }
     }
@@ -129,19 +139,23 @@ namespace iExpr.Parser
         /// <summary>
         /// 获取所有修饰符
         /// </summary>
-        public string[] Modifiers { get; set; }
+        public ModifierList Modifiers { get; set; }
 
         /// <summary>
-        /// 获取或设置所有常量符
+        /// 获取或设置所有常量符（始终以标识符形式表示）
         /// </summary>
-        public string[] Constants { get; protected set; }
-
-        /// <summary>
-        /// 运算关键字组成的字典树
-        /// </summary>
-        public Trie OperationTrie { get; protected set; }
+        public ConstantList Constants { get; protected set; }
 
         Dictionary<string, IOperation> symbols;
+
+        public TokenChecker OperatorChecker { get; protected set; }
+
+        public TokenChecker VariableChecker { get; protected set; }
+
+        /// <summary>
+        /// 基础元素的检验器（如数字，预定义量）
+        /// </summary>
+        public TokenChecker BasicTokenChecker { get; protected set; }
 
         /// <summary>
         /// 获取所有符号
@@ -153,12 +167,12 @@ namespace iExpr.Parser
         /// </summary>
         protected void BuildOpt()
         {
-            OperationTrie = new Trie(); symbols = new Dictionary<string, IOperation>();
+            symbols = new Dictionary<string, IOperation>();
             foreach (var v in Operations.Values)
             {
                 symbols.Add(v.Keyword, v);
-                Trie.Insert(v.Keyword, OperationTrie);
             }
+            OperatorChecker = new OperatorTokenChecker(Operations.Values);
         }
 
         /// <summary>
@@ -172,6 +186,8 @@ namespace iExpr.Parser
             {
                 case ',':
                     return SymbolType.Comma;
+                case '.':
+                    return SymbolType.Access;
                 case '@':
                     return SymbolType.At;
                 case '"':
@@ -199,71 +215,11 @@ namespace iExpr.Parser
         }
 
         /// <summary>
-        /// 判断一个符号是否是变量
-        /// </summary>
-        /// <param name="symbol"></param>
-        /// <returns></returns>
-        public virtual bool IsVariable(Symbol symbol)
-        {
-            if (VariableToken.IsVariable(symbol) == false) return false;
-            if (Symbols.ContainsKey(symbol)) return false;
-            /*if (Constants != null)
-            {
-                return Constants.ContainsKey(symbol) == false;
-            }*/
-            return true;
-        }
-
-        /// <summary>
         /// 获取识别后的值
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        public abstract ExprToken GetValue(Symbol symbol);
-
-        public virtual bool IsVariableChar(char c)
-        {
-            return VariableToken.IsVariableChar(c);
-        }
-
-        public virtual bool IsVariableBeginChar(char c)
-        {
-            return VariableToken.IsVariableBeginChar(c);
-        }
-
-        public virtual bool IsConstant(Symbol symbol)
-        {
-            foreach (var v in symbol.ToString()) if (IsConstantChar(v) == false) return false;
-            return true;
-        }
-
-        public abstract bool IsConstantChar(char c);
-
-        public virtual bool IsConstantBeginChar(char c)
-        {
-            return IsVariableBeginChar(c) == false && IsOperationBeginChar(c) == false;
-        }
-
-        public virtual bool IsOperationBeginChar(char c)
-        {
-            return OperationTrie.ContainsKey(c);
-        }
-
-        public virtual bool IsOperation(Symbol expr)
-        {
-            return Symbols.ContainsKey(expr.Value);
-        }
-
-        /*
-        /// <summary>
-        /// 判断指定字符是否为运算关键字的首字符
-        /// </summary>
-        /// <param name="begin"></param>
-        /// <returns></returns>
-        public virtual bool IsOperation(char begin)
-        {
-            return OperationTrie.ContainsKey(begin);
-        }*/
+        public abstract IValue GetBasicValue(Symbol symbol);
         
         /// <summary>
         /// 获取识别后的整体值
@@ -276,9 +232,9 @@ namespace iExpr.Parser
             {
                 var v= Constants[str];
                 if (v is IExpr) return (IExpr)v;
-                else return ConcreteValueHelper.BuildValue(v);
+                else return new ConcreteValue(v);
             }
-            return ConcreteValueHelper.BuildValue(str);
+            return new ConcreteValue(str);
         }
 
         /// <summary>
@@ -290,8 +246,6 @@ namespace iExpr.Parser
         {
             get
             {
-                if (!IsOperation(symbol))
-                    throw new Exception("The symbol is not a operator.");
                 return Symbols[symbol.Value];
             }
         }

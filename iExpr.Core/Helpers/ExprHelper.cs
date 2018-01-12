@@ -9,7 +9,7 @@ namespace iExpr.Helpers
 {
     public class ExprHelper
     {
-        public static VariableToken[] GetVariables(IExpr exp,ParseEnvironment syms=null)
+        /*public static VariableToken[] GetVariables(IExpr exp,ParseEnvironment syms=null)
         {
             switch (exp)
             {
@@ -43,6 +43,6 @@ namespace iExpr.Helpers
                 default:
                     return new VariableToken[] { };
             }
-        }
+        }*/
     }
 }

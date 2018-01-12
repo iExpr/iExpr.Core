@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iExpr.Values;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,7 +20,7 @@ namespace iExpr.Helpers
         {
             try
             {
-                var v = (exp as ConcreteToken);
+                var v = (exp as ConcreteValue);
                 if (v.Value is T) return (T)v.Value;
                 return (T)Convert.ChangeType(v.Value, typeof(T));
             }
@@ -33,7 +34,7 @@ namespace iExpr.Helpers
 
         public static double DoubleEps { get; set; } = 1e-12;
 
-        /// <summary>
+        /*/// <summary>
         /// 合成值
         /// </summary>
         /// <param name="val"></param>
@@ -45,6 +46,6 @@ namespace iExpr.Helpers
                 //if (Math.Abs((double)val) < DoubleEps) val = 0;
             }
             return new ConcreteToken(val);
-        }
+        }*/
     }
 }

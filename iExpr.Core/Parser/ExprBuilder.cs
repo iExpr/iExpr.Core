@@ -1,5 +1,5 @@
-﻿using iExpr.Helpers;
-using iExpr.Operations;
+﻿using iExpr.Exceptions;
+using iExpr.Helpers;
 using iExpr.Values;
 using System;
 using System.Collections.Generic;
@@ -42,10 +42,9 @@ namespace iExpr.Parser
                 return new Symbol[] { };
             }
             int cur = 0;
-            string nextCons()
+            /*string nextCons()
             {
                 int s = cur;
-                StringBuilder sb = new StringBuilder();
                 while (s < expr.Length)
                 {
                     if (!Symbols.IsConstantChar(expr[s])) break;
@@ -89,26 +88,40 @@ namespace iExpr.Parser
                 cur = s-1;
                 if (Symbols.IsOperation(ans) == false) return null;// throw new Exception("it's not a opt");
                 return ans;
-            }
+            }*/
+            var vtc = Symbols.VariableChecker;
+            var btc = Symbols.BasicTokenChecker;
+            var otc = Symbols.OperatorChecker;
             (string,SymbolType) nextItem()
             {
+                otc.Clear();btc.Clear();vtc.Clear();
                 int ocur = cur;
-                string s = null;
-                if(Symbols.IsConstantBeginChar(expr[cur]))s=nextCons();
-                if (s != null) return (s,SymbolType.ConstantValue);
-                cur = ocur;
-                if (Symbols.IsOperationBeginChar(expr[cur])) s = nextOpt();
-                if (s != null) return (s, SymbolType.Operation);
-                cur = ocur;
-                if (Symbols.IsVariableBeginChar(expr[cur])) s = nextVal();
-                if (s != null) return (s, SymbolType.Variable);
-
-                
-                throw new Exception("no item");
-            }
-            bool isopt()
-            {
-                return !Symbols.IsVariableChar(expr[cur]);
+                int cnt = 3;
+                StringBuilder sb = new StringBuilder();
+                var c = expr[cur];
+                while (cnt > 1 && cur<expr.Length)
+                {
+                    
+                    if (otc.Check() != false) cnt -= otc.Append(c) ? 0 : 1;
+                    if (btc.Check() != false) cnt -= btc.Append(c) ? 0 : 1;
+                    if (vtc.Check() != false) cnt -= vtc.Append(c) ? 0 : 1;
+                    sb.Append(c);
+                    cur++;
+                }
+                if (cnt == 0) throw new ParseException(sb.ToString(), "Can't recoginize this token");
+                TokenChecker curtoken = null;
+                SymbolType ret = SymbolType.None;
+                if (otc.Check() != false) { curtoken = otc; ret = SymbolType.Operation; }
+                else if (btc.Check() != false) { curtoken = btc; ret = SymbolType.BasicValue; }
+                else if(vtc.Check()!=false) { curtoken = vtc; ret = SymbolType.Variable; }
+                while (cur < expr.Length)
+                {
+                    c = expr[cur];
+                    if (!curtoken.Append(c)) break;
+                    sb.Append(c);
+                    cur++;
+                }
+                return (sb.ToString(), ret);
             }
             List<Symbol> sym = new List<Symbol>();
 
@@ -145,38 +158,15 @@ namespace iExpr.Parser
                 return sb.ToString();
             }
 
-            /*string goChildExpr()
-            {
-                int left = 1; cur++;
-                StringBuilder sb = new StringBuilder();
-                while (cur < expr.Length)//如果没能匹配就跑到最后
-                {
-                    switch (Symbols.GetSpecialSymbolType(expr[cur]))
-                    {
-                        case SymbolType.LeftBrace:
-                            left++; break;
-                        case SymbolType.RightBrace:
-                            left--; break;
-                        default:
-                            break;
-                    }
-                    if (left == 0) break;
-                    sb.Append(expr[cur]);
-                    cur++;
-                }
-                //if(cur<expr.Length) ;//指向最后一个}
-                return sb.ToString();
-            }*/
-
             while (cur < expr.Length)
             {
                 var type = Symbols.GetSpecialSymbolType(expr[cur]);
                 int _l = cur;
                 switch (type)
                 {
-                    case SymbolType.Space://忽视空格（a b会被理解为变量ab）
+                    case SymbolType.Space:
                         {
-                            if (sym.Count > 0)
+                            /*if (sym.Count > 0)//忽视空格（a b会被理解为变量ab）
                             {
                                 var lst = sym[sym.Count - 1];
                                 if (lst.Type == SymbolType.Space)
@@ -188,10 +178,12 @@ namespace iExpr.Parser
                                     break;
                                 }
                             }
-                            else sym.Add(new Symbol(expr[cur].ToString(), SymbolType.Space, _l, cur));
+                            else */
+                            sym.Add(new Symbol(expr[cur].ToString(), SymbolType.Space, _l, cur));
                         }
                         break;
                     case SymbolType.Comma:
+                    case SymbolType.Access:
                     case SymbolType.LeftParentheses:
                     case SymbolType.RightParentheses:
                     case SymbolType.LeftBracket:
@@ -199,7 +191,6 @@ namespace iExpr.Parser
                     case SymbolType.LeftBrace:
                     case SymbolType.RightBrace:
                         sym.Add(new Symbol(expr[cur].ToString(), type,_l,cur));
-                        
                         break;
                     case SymbolType.At:
                         {
@@ -207,36 +198,32 @@ namespace iExpr.Parser
                             sym.Add(new Symbol(s, SymbolType.UnionValue, _l, cur));
                         }
                         break;
-                    /*
-                        throw new Exception("An unexpected right bracket.");
-                        throw new Exception("An unexpected left brace.");
-                        throw new Exception("An unexpected right brace.");*/
                     case SymbolType.None:
                         {
-
                             (var s, var st) = nextItem();
-                            if(st== SymbolType.Operation)
+                            switch (st)
                             {
-                                sym.Add(new Symbol(s, SymbolType.Operation, _l, cur));
-                                break;
-                            }
-                            //bool isv = st == SymbolType.Variable;
-                            /*if (sym.Count > 0)
-                            {
-                                var lst = sym[sym.Count - 1];
-                                if (lst.Type == SymbolType.Variable || lst.Type == SymbolType.ConstantValue)
-                                {
-                                    //TODO: Go on!
-                                    //上一个如果是常量则这个一定是变量，因为常量会自动延伸至非常量
-                                    lst.Type = SymbolType.Variable;
-                                    lst.Value += s;
-                                    lst.EndPosition = cur;
+                                case SymbolType.Operation:
+                                    sym.Add(new Symbol(s, SymbolType.Operation, _l, cur));
                                     break;
-                                }
-                            }*/
-                            sym.Add(new Symbol(s, st,_l,cur));
+                                case SymbolType.BasicValue:
+                                    sym.Add(new Symbol(s, SymbolType.BasicValue, _l, cur));
+                                    break;
+                                case SymbolType.Variable:
+                                    if (Symbols.Constants.ContainsKey(s))
+                                    {
+                                        sym.Add(new Symbol(s, SymbolType.ConstantValue, _l, cur));
+                                    }
+                                    else if (Symbols.Modifiers.ContainsKey(s))
+                                    {
+                                        sym.Add(new Symbol(s, SymbolType.Modifier, _l, cur));
+                                    }
+                                    sym.Add(new Symbol(s, SymbolType.Variable, _l, cur));
+                                    break;
+                                default:
+                                    throw new UndefinedExecuteException();
+                            }
                         }
-                
                         break;
                 }
                 cur++;
@@ -319,10 +306,12 @@ namespace iExpr.Parser
                 }
                 expr = $"({expr})";
 
-                var syms = GetSymbols(expr);
+                var syms = GetSymbols(expr).Where(x=>x.Type!= SymbolType.Space).ToArray();//剔除空白，防止影响相邻的判断
                 Stack<(IExpr val, int id)> val = new Stack<(IExpr, int)>();
                 Stack<(IOperation val, int id)> opt = new Stack<(IOperation, int)>();
                 Stack<(int,int)> leftbrs = new Stack<(int,int)>();
+                Stack<int> edges = new Stack<int>();
+
 
                 int toint(SymbolType type)
                 {
@@ -345,30 +334,60 @@ namespace iExpr.Parser
                     }
                 }
 
-                void _pop(int cur, bool isallbra = false)
+                void _pop(int cur)
                 {
                     var last = opt.Pop().val;
-                    var p = leftbrs.Peek().Item2;
-                    List<IExpr> exp = new List<IExpr>();
-                    if (isallbra == false && last.QuantityNumber > -1)
+                    var p = edges.Peek();
+                    IExpr l=null, r=null;
+                    if (last.ArgumentCount != 1 && last.ArgumentCount != 1) throw new UndefinedExecuteException();
+
+                    if (last.ArgumentCount == 1)
                     {
-                        while (exp.Count < last.QuantityNumber && val.Count > 0 && val.Peek().id > p)
+                        if (val.Peek().id > p) l = val.Pop().val;
+                        if (l == null) throw new UndefinedExecuteException();
+                        val.Push((new ExprNodeSingleOperation(last, l), cur));
+                    }
+                    else if (last.ArgumentCount == 2)
+                    {
+                        if (val.Peek().id > p) r = val.Pop().val;
+                        if (val.Peek().id > p) l = val.Pop().val;
+                        if (l == null) throw new UndefinedExecuteException();
+                        if (r == null) throw new UndefinedExecuteException();
+                        val.Push((new ExprNodeBinaryOperation(last, l, r), cur));
+                    }
+                    else throw new UndefinedExecuteException();
+                }
+
+                void _var(int cur,VariableToken v)
+                {
+                    var p = edges.Peek();
+                    List<ModifierToken> ms = new List<ModifierToken>();
+                    while(val.Count>0)
+                    {
+                        (var e, var id) = val.Peek();
+                        if (!(id > p)) break;
+                        if (!(e is ModifierToken)) break;
+                        ms.Add(e as ModifierToken);
+                        val.Pop();
+                    }
+                    v.Attached = ms.ToArray();
+                    val.Push((v, cur));
+                }
+
+                void package(int cur)
+                {
+                    var p = edges.Peek();
+                    if (opt.Count > 0)//由于最左边加了括号，那么如果没有运算符了，就意味着前面的都是组合好的val
+                    {
+                        while (opt.Count > 0 && opt.Peek().id > p)
                         {
-                            exp.Add(val.Pop().val);
+                            _pop(cur - 1);//TODO: Not the cur but cur-1,The id are same!
                         }
                     }
-                    else
-                    {
-                        while (val.Count > 0 && val.Peek().id >p)
-                        {
-                            exp.Add(val.Pop().val);
-                        }
+                    if (val.Count == 0 || val.Peek().id < p)
+                    {//空括号
+                        val.Push((BuiltinValues.Null, cur - 1));
                     }
-                    exp.Reverse();
-                    if (last.QuantityNumber != -1 && exp.Count > last.QuantityNumber)
-                        exp.RemoveRange(last.QuantityNumber, exp.Count - last.QuantityNumber);
-                    var trn = new ExprNode(last, exp.ToArray());
-                    val.Push((trn, cur));
                 }
 
                 for (int cur = 0; cur < syms.Length; cur++)
@@ -378,123 +397,106 @@ namespace iExpr.Parser
                     {
                         case SymbolType.Comma://最后一段整合成一个整体，相当于加了个括号，如果最后一段为空则会加入一个Null
                             {
-                                var p = leftbrs.Peek();
-                                if (opt.Count > 0)//由于最左边加了括号，那么如果没有运算符了，就意味着前面的都是组合好的val
-                                {
-                                    while (opt.Count > 0 && opt.Peek().id > p.Item2)
-                                    {
-                                        _pop(cur-1);//TODO: Not the cur but cur-1,The id are same!
-                                    }
-                                }
-                                if(val.Count==0 || val.Peek().id<p.Item2){//空括号
-                                    val.Push((BuiltinValues.Null, cur-1));
-                                }
+                                package(cur);
+                                edges.Push(cur);
                             }
                             break;
                         case SymbolType.LeftParentheses:
                         case SymbolType.LeftBracket:
                         case SymbolType.LeftBrace:
-                            leftbrs.Push((toint(s.Type),cur)); break;
+                            leftbrs.Push((toint(s.Type), cur)); edges.Push(cur); break;
                         case SymbolType.RightParentheses:
                         case SymbolType.RightBracket:
                         case SymbolType.RightBrace:
                             {
-                                if (leftbrs.Count == 0) throw new Exception("An unexpected right bracket.");
+                                if (leftbrs.Count == 0) throw new ParseException("An unexpected right bracket.");
                                 var p = leftbrs.Peek();
-                                if(p.Item1+toint(s.Type)!=10) throw new Exception("An unexpected right bracket.");
+                                if (p.Item1 + toint(s.Type) != 10) throw new ParseException("An unexpected right bracket.");
 
-                                if (opt.Count > 0)
+                                package(cur);//最后一段打包
+
+                                List<IExpr> l = new List<IExpr>();
+                                while (val.Count > 0 && val.Peek().id > p.Item2)
                                 {
-                                    while (opt.Count > 0 && opt.Peek().id > p.Item2)//Modify！
-                                    {
-                                        _pop(cur);//The id are same!
-                                    }
+                                    l.Add(val.Pop().val);
                                 }
+                                l.Reverse();
+                                bool flg = false;
                                 switch (s.Type)
                                 {
                                     case SymbolType.RightParentheses://小括号
                                         {
-                                            bool flg = false;
-                                            if (opt.Count > 0)
+                                            if (val.Count > 0)//fid(x,x,x)
                                             {
-                                                (var v, var id) = opt.Peek();
-                                                if (id == p.Item2 - 1 && v is Function)//函数情况下展开
+                                                (var ex, var id) = val.Peek();
+                                                if (id == p.Item2 - 1)//函数情况下展开
                                                 {
-                                                    _pop(cur, true); flg = true;
+                                                    val.Pop();
+                                                    //ExprFunction ef = new ExprFunction(ex);
+                                                    ExprNode en = new ExprNodeCall(ex, l.ToArray());
+                                                    val.Push((en, cur));
+                                                    flg = true;
                                                 }
                                             }
                                             if (flg == false)
                                             {
-                                                
-                                                List<IExpr> l = new List<IExpr>();
-                                                while (val.Count > 0 && val.Peek().id > p.Item2)
+                                                if (l.Count > 1)//括号里有多项（如果只有一项零项就不生成Tuple）,TODO:注意这里
                                                 {
-                                                    l.Add(val.Pop().val);
+                                                    val.Push((new TupleValue(l), cur));
                                                 }
-                                                l.Reverse();
-                                                if (val.Count > 0)//fid(x,x,x)
+                                                else
                                                 {
-                                                    (var ex,var id) = val.Peek();
-                                                    if (id == p.Item2 - 1)//函数情况下展开
-                                                    {
-                                                        val.Pop();
-                                                        ExprFunction ef = new ExprFunction(ex);
-                                                        ExprNode en = new ExprNode(ef, l.ToArray());
-                                                        val.Push((en, cur));
-                                                        flg = true;
-                                                    }
-                                                }
-                                                if(flg==false)
-                                                {
-                                                    if (l.Count > 1)//括号里有多项（如果只有一项或零项就不生成Tuple）
-                                                    {
-                                                        val.Push((ConcreteValueHelper.BuildValue(new TupleValue(l)), cur));
-                                                    }
-                                                    else
-                                                    {
-                                                        if (l.Count == 1) val.Push((l[0], cur));
-                                                    }
+                                                    if (l.Count == 1) val.Push((l[0], cur));
                                                 }
                                             }
                                         }
                                         break;
                                     case SymbolType.RightBracket:
                                         {
-                                            List<IExpr> l = new List<IExpr>();
-                                            while (val.Count > 0 && val.Peek().id > p.Item2)
-                                            {
-                                                l.Add(val.Pop().val);
-                                            }
-                                            l.Reverse();
-                                            bool flg = false;
-                                            /*if (val.Count > 0)//fid[x,x,x]
+                                            if (val.Count > 0)//fid[x,x,x]
                                             {
                                                 (var ex, var id) = val.Peek();
-                                                if (id == p.Item2 - 1 && ex is VariableToken)//函数情况下展开
+                                                if (id == p.Item2 - 1)//函数情况下展开
                                                 {
-                                                    var v = ((VariableToken)val.Peek().val);
-                                                    v.Attached = l.ToArray();
-                                                    v.Type = VariableType.Index;
+                                                    val.Pop();
+                                                    //ExprFunction ef = new ExprFunction(ex);
+                                                    ExprNode en = new ExprNodeIndex(ex, l.ToArray());
+                                                    val.Push((en, cur));
                                                     flg = true;
                                                 }
-                                            }*/
-                                            if(flg==false)val.Push((ConcreteValueHelper.BuildValue(new ListValue(l)), cur));
+                                            }
+                                            if (flg == false) val.Push((new ListValue(l), cur));
                                         }
                                         break;
                                     case SymbolType.RightBrace:
                                         {
-                                            SetValue l = new SetValue
+                                            if (val.Count > 0)//fid[x,x,x]
                                             {
-                                                Contents = new HashSet<IExpr>()
-                                            }; while (val.Count > 0 && val.Peek().id > p.Item2)
-                                            {
-                                                l.Contents.Add(val.Pop().val);
+                                                (var ex, var id) = val.Peek();
+                                                if (id == p.Item2 - 1)//函数情况下展开
+                                                {
+                                                    val.Pop();
+                                                    //ExprFunction ef = new ExprFunction(ex);
+                                                    ExprNode en = new ExprNodeContent(ex, l.ToArray());
+                                                    val.Push((en, cur));
+                                                    flg = true;
+                                                }
                                             }
-                                            val.Push((ConcreteValueHelper.BuildValue(l), cur));
+                                            if (flg == false) val.Push((new SetValue(l), cur));
                                         }
                                         break;
                                 }
                                 leftbrs.Pop();
+                            }
+                            break;
+                        case SymbolType.Access:
+                            if(val.Count == 0 || val.Peek().id<edges.Peek()) throw new ParseException("No pre variable for access expr.");
+                            if (cur + 1 >= syms.Length) throw new ParseException("No suffix variable for access expr.");
+                            { 
+                                cur++;var l = val.Pop().val;
+                                var t = syms[cur];
+                                if (t.Type != SymbolType.Variable) throw new ParseException("The access expr is only used by variable.");
+                                val.Push((new ExprNodeAccess(l, new VariableToken(t)), cur));
                             }
                             break;
                         case SymbolType.Operation:
@@ -508,7 +510,7 @@ namespace iExpr.Parser
                                     && (op.Priority > pp.val.Priority
                                     || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
                                 {
-                                    _pop(cur-1);
+                                    _pop(cur - 1);
                                     if (opt.Count == 0) break;
                                     pp = opt.Peek();
                                 }
@@ -516,24 +518,29 @@ namespace iExpr.Parser
                             }
                             break;
                         case SymbolType.Variable:
-                        case SymbolType.ConstantValue:
-                            val.Push((Symbols.GetValue(s), cur));
+                            _var(cur, new VariableToken(s));
+                            break;
+                        case SymbolType.ConstantValue://常量不支持修饰符
+                            val.Push((Symbols.Constants[s], cur));
+                            break;
+                        case SymbolType.BasicValue:
+                            val.Push((Symbols.GetBasicValue(s), cur));
+                            break;
+                        case SymbolType.Modifier:
+                            val.Push((Symbols.Modifiers[s], cur));
                             break;
                         case SymbolType.UnionValue:
                             val.Push((parseUnionValue(s), cur));
                             break;
-                        /*case SymbolType.ChildExpr:
-                            val.Push((new ChildExprValue(s.Value), cur));
-                            break;*/
-        }
+                    }
                 }
-                if (val.Count > 1) throw new Exception("Not a complete expr");
+                if (val.Count > 1) throw new ParseException(expr,"Not a complete expr");
                 if (val.Count == 0) return BuiltinValues.Null;
                 return val.Pop().val;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw new ParseException("Parsing failed.",ex);
             }
         }
     }
