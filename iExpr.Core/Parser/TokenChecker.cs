@@ -6,59 +6,53 @@ namespace iExpr.Parser
 {
     public abstract class TokenChecker
     {
-        public abstract void Clear();
+        protected StringBuilder Str = new StringBuilder();
 
-        public abstract string GetValue();
+        protected bool? Flag = null;
+
+        public virtual void Clear()
+        {
+            Str.Clear();
+            Flag = null;
+        }
+
+        public virtual string GetValue()
+        {
+            return Str.ToString();
+        }
 
         public abstract bool Test(char c);
-        
 
         /// <summary>
         /// 加入一个字符，检查是否满足条件
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        public abstract bool Append(char c);
+        public virtual bool Append(char c)
+        {
+            if (Flag == null) Flag = Test(c);
+            else Flag &= Test(c);
+            Str.Append(c);
+            return Flag.Value;
+        }
 
         /// <summary>
         /// 检查当前串是否满足条件
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        public abstract bool? Check();
+        public virtual bool? Check()
+        {
+            return Flag;
+        }
     }
 
     public class VariableTokenChecker : TokenChecker
     {
-        StringBuilder str = new StringBuilder();
-        bool? flg = null;
-
-        public override void Clear()
-        {
-            str.Clear();flg = null;
-        }
-
-        public override string GetValue()
-        {
-            return str.ToString();
-        }
-
-        public override bool Append(char c)
-        {
-            flg &= Test(c);
-            str.Append(c);
-            return flg.Value;
-        }
-
-        public override bool? Check()
-        {
-            return flg;
-        }
-
         public override bool Test(char c)
         {
             bool isv() => c == '_' || char.IsLetterOrDigit(c);
-            if (flg == null)
+            if (Flag == null)
             {
                 return isv() && char.IsDigit(c) == false;
             }
@@ -68,8 +62,6 @@ namespace iExpr.Parser
 
     public class OperatorTokenChecker : TokenChecker
     {
-        StringBuilder str = new StringBuilder();
-        bool? flg = null;
         Trie current = null;
 
         /// <summary>
@@ -89,24 +81,7 @@ namespace iExpr.Parser
 
         public override void Clear()
         {
-            str.Clear(); flg = null; current = OperationTrie;
-        }
-
-        public override string GetValue()
-        {
-            return str.ToString();
-        }
-
-        public override bool Append(char c)
-        {
-            flg &= Test(c);
-            str.Append(c);
-            return flg.Value;
-        }
-
-        public override bool? Check()
-        {
-            return flg;
+            base.Clear(); current = OperationTrie;
         }
 
         public override bool Test(char c)

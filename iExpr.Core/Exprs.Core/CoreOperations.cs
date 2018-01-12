@@ -103,9 +103,9 @@ namespace iExpr.Exprs.Core
                 OperationHelper.AssertArgsNumber(2, args);
                 var c = cal.GetChild();
                 List<string> vs = new List<string>();
-                if (args[0] is CollectionValue)
+                if (args[0] is TupleValue)
                 {
-                    var _arg = args[0] as CollectionValue;
+                    var _arg = (IEnumerable<IExpr> )args[0];
                     foreach (VariableToken v in _arg)
                     {
                         vs.Add(v.ID);

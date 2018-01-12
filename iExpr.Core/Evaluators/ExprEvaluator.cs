@@ -67,6 +67,7 @@ namespace iExpr.Evaluators
                     case FunctionValue o:
                         return o;
                     case ConcreteValue o:
+                        if (o.Value is IExpr) return context.Evaluate((IExpr)o.Value);
                         return o;
                     default:
                         throw new EvaluateException("Can't evaluate this kind of expr.");
@@ -88,21 +89,23 @@ namespace iExpr.Evaluators
 
         public static IExpr EvaluateColletionValue(CollectionValue expr, EvalContext environment)
         {
-            List<IValue> vs = new List<IValue>();
+            List<IExpr> vs = new List<IExpr>();
             //var que = from x in ls.Contents select Calculate(x);
             try
             {
-                foreach (var v in expr)
+                foreach (var v in (IEnumerable<IExpr>)expr)
                 {
                     var val = environment.Evaluate(v);
-                    if (val is IValue)
+                    vs.Add(val);
+                    continue;
+                    /*if (val is IValue)
                     {
                         vs.Add((IValue)val);
                     }
                     else//值是一个表达式
                     {
                         throw new NotValueException();
-                    }
+                    }*/
                 }
                 var vc = expr.CreateNew();
                 vc.Reset(vs);
@@ -145,18 +148,20 @@ namespace iExpr.Evaluators
             var cs = environment.GetChild();//开辟一个子环境
             var func = head as FunctionValue;
             if (func.ArgumentCount == 0) return func.EvaluateFunc(null, cs);
-            List<IValue> args = new List<IValue>();
+            List<IExpr> args = new List<IExpr>();
             foreach(var v in expr.Children)
             {
                 var val = cs.Evaluate(v);
-                if (val is IValue)
+                args.Add(val);
+                continue;
+                /*if (val is IValue)
                 {
                     args.Add((IValue)val);
                 }
                 else//值是一个表达式
                 {
                     throw new NotValueException();
-                }
+                }*/
             }
             return func.EvaluateFunc(new FunctionArgument(args.ToArray()), cs);
         }

@@ -98,10 +98,10 @@ namespace iExpr.Parser
                 int ocur = cur;
                 int cnt = 3;
                 StringBuilder sb = new StringBuilder();
-                var c = expr[cur];
+                char c;
                 while (cnt > 1 && cur<expr.Length)
                 {
-                    
+                    c = expr[cur];
                     if (otc.Check() != false) cnt -= otc.Append(c) ? 0 : 1;
                     if (btc.Check() != false) cnt -= btc.Append(c) ? 0 : 1;
                     if (vtc.Check() != false) cnt -= vtc.Append(c) ? 0 : 1;
@@ -121,6 +121,7 @@ namespace iExpr.Parser
                     sb.Append(c);
                     cur++;
                 }
+                cur--;
                 return (sb.ToString(), ret);
             }
             List<Symbol> sym = new List<Symbol>();
@@ -210,15 +211,15 @@ namespace iExpr.Parser
                                     sym.Add(new Symbol(s, SymbolType.BasicValue, _l, cur));
                                     break;
                                 case SymbolType.Variable:
-                                    if (Symbols.Constants.ContainsKey(s))
+                                    if (Symbols.Constants?.ContainsKey(s)==true)
                                     {
                                         sym.Add(new Symbol(s, SymbolType.ConstantValue, _l, cur));
                                     }
-                                    else if (Symbols.Modifiers.ContainsKey(s))
+                                    else if (Symbols.Modifiers?.ContainsKey(s)==true)
                                     {
                                         sym.Add(new Symbol(s, SymbolType.Modifier, _l, cur));
                                     }
-                                    sym.Add(new Symbol(s, SymbolType.Variable, _l, cur));
+                                    else sym.Add(new Symbol(s, SymbolType.Variable, _l, cur));
                                     break;
                                 default:
                                     throw new UndefinedExecuteException();
@@ -339,8 +340,8 @@ namespace iExpr.Parser
                     var last = opt.Pop().val;
                     var p = edges.Peek();
                     IExpr l=null, r=null;
-                    if (last.ArgumentCount != 1 && last.ArgumentCount != 1) throw new UndefinedExecuteException();
-
+                    if (last.ArgumentCount != 1 && last.ArgumentCount != 2) throw new UndefinedExecuteException();
+                    //TODO: Support ovvri.. functions
                     if (last.ArgumentCount == 1)
                     {
                         if (val.Peek().id > p) l = val.Pop().val;
@@ -486,6 +487,7 @@ namespace iExpr.Parser
                                         }
                                         break;
                                 }
+                                while (edges.Count > 0 && edges.Peek() >= p.Item2) edges.Pop();
                                 leftbrs.Pop();
                             }
                             break;
@@ -505,8 +507,8 @@ namespace iExpr.Parser
                             {
                                 var op = Symbols[s];
                                 var pp = opt.Peek();
-                                var p = leftbrs.Peek();
-                                while (pp.id > p.Item2
+                                var p = edges.Peek();
+                                while (pp.id > p
                                     && (op.Priority > pp.val.Priority
                                     || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
                                 {

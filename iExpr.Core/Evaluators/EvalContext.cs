@@ -105,7 +105,7 @@ namespace iExpr.Evaluators
             }
         }
 
-        public IValue GetVariableValue(string id)
+        public IExpr GetVariableValue(string id)
         {
             var p = this;
             while (p != null && p.Variables?.ContainsKey(id) != true) p = p.Parent;

@@ -139,7 +139,7 @@ namespace iExpr.Parser
         /// <summary>
         /// 获取所有修饰符
         /// </summary>
-        public ModifierList Modifiers { get; set; }
+        public ModifierList Modifiers { get; protected set; }
 
         /// <summary>
         /// 获取或设置所有常量符（始终以标识符形式表示）

@@ -18,9 +18,9 @@ namespace iExpr.Evaluators
         /// <summary>
         /// 运算提供者
         /// </summary>
-        public IExprEvaluator Evaluator { get; set; }
+        public IExprEvaluator Evaluator { get; protected set; }
 
-        public EvalContext CreateContext(CancellationTokenSource cancel=null)
+        public virtual EvalContext CreateContext(CancellationTokenSource cancel=null)
         {
             var res = EvalContext.Create(cancel ?? new System.Threading.CancellationTokenSource());
             res.Evaluator = Evaluator;

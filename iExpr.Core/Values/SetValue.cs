@@ -14,9 +14,9 @@ namespace iExpr.Values
         /// <summary>
         /// 集合内容
         /// </summary>
-        private HashSet<IExpr> values = new HashSet<IExpr>();
+        private HashSet<CollectionItemValue> values = new HashSet<CollectionItemValue>();
 
-        protected override IEnumerable<IExpr> _Contents { get => this; }
+        protected override IEnumerable<CollectionItemValue> _Contents { get => values; }
 
         public bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
 
@@ -57,82 +57,95 @@ namespace iExpr.Values
 
         public bool Add(IExpr item)
         {
-            return ((ISet<IExpr>)values).Add(item);
+            return values.Add(new CollectionItemValue(item));
+        }
+
+        IEnumerable<CollectionItemValue> getitems(IEnumerable<IExpr> other)
+        {
+            return (other.Select(x => (x is CollectionItemValue) ? (CollectionItemValue)x : new CollectionItemValue(x)));
         }
 
         public void ExceptWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IExpr>)values).ExceptWith(other);
+            values.ExceptWith(getitems(other));
         }
 
         public void IntersectWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IExpr>)values).IntersectWith(other);
+            values.IntersectWith(getitems(other));
         }
 
         public bool IsProperSubsetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IExpr>)values).IsProperSubsetOf(other);
+            return values.IsProperSubsetOf(getitems(other));
         }
 
         public bool IsProperSupersetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IExpr>)values).IsProperSupersetOf(other);
+            return values.IsProperSupersetOf(getitems(other));
         }
 
         public bool IsSubsetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IExpr>)values).IsSubsetOf(other);
+            return values.IsSubsetOf(getitems(other));
         }
 
         public bool IsSupersetOf(IEnumerable<IExpr> other)
         {
-            return ((ISet<IExpr>)values).IsSupersetOf(other);
+            return values.IsSupersetOf(getitems(other));
         }
 
         public bool Overlaps(IEnumerable<IExpr> other)
         {
-            return ((ISet<IExpr>)values).Overlaps(other);
+            return values.Overlaps(getitems(other));
         }
 
         public bool SetEquals(IEnumerable<IExpr> other)
         {
-            return ((ISet<IExpr>)values).SetEquals(other);
+            return values.SetEquals(getitems(other));
         }
 
         public void SymmetricExceptWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IExpr>)values).SymmetricExceptWith(other);
+            values.SymmetricExceptWith(getitems(other));
         }
 
         public void UnionWith(IEnumerable<IExpr> other)
         {
-            ((ISet<IExpr>)values).UnionWith(other);
-        }
-
-        void ICollection<IExpr>.Add(IExpr item)
-        {
-            ((ISet<IExpr>)values).Add(item);
+            values.UnionWith(getitems(other));
         }
 
         public void Clear()
         {
-            ((ISet<IExpr>)values).Clear();
+            values.Clear();
         }
 
         public bool Contains(IExpr item)
         {
-            return ((ISet<IExpr>)values).Contains(item);
+            return values.Contains(item);
         }
 
         public void CopyTo(IExpr[] array, int arrayIndex)
         {
-            ((ISet<IExpr>)values).CopyTo(array, arrayIndex);
+            throw new Exceptions.UndefinedExecuteException();
+        }
+
+        CollectionItemValue GetItemValue(object item)
+        {
+            foreach (var x in values)
+                if (x.Value == item) return x;
+            return null;
         }
 
         public bool Remove(IExpr item)
         {
-            return ((ISet<IExpr>)values).Remove(item);
+            var id = GetItemValue(item); if (id == null) return true;
+            return values.Remove(id);
+        }
+
+        void ICollection<IExpr>.Add(IExpr item)
+        {
+            this.Add(item);
         }
     }
 }

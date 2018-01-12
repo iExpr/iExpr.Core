@@ -11,14 +11,14 @@ namespace iExpr.Evaluators
     /// <summary>
     /// 变量提供者
     /// </summary>
-    public class VariableValueProvider : Dictionary<string, IValue>
+    public class VariableValueProvider : Dictionary<string, IExpr>
     {
         /// <summary>
         /// 添加变量（不允许递归定义）
         /// </summary>
         /// <param name="key"></param>
         /// <param name="val"></param>
-        public void Set(string key, IValue val)
+        public void Set(string key, IExpr val)
         {
             /*var s = ExprHelper.GetVariables(val as IExpr);
             if (s.Contains(new VariableToken(key)))
@@ -29,7 +29,7 @@ namespace iExpr.Evaluators
             else base.Add(key, val);
         }
 
-        public IValue Get(string key)
+        public IExpr Get(string key)
         {
             return this[key];
         }

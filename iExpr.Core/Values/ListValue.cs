@@ -13,7 +13,7 @@ namespace iExpr.Values
     {
         private List<CollectionItemValue> values = new List<CollectionItemValue>();
 
-        protected override IEnumerable<IExpr> _Contents { get => this; }
+        protected override IEnumerable<CollectionItemValue> _Contents { get => values; }
 
         public bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
 

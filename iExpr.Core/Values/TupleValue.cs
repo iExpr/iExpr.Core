@@ -14,9 +14,9 @@ namespace iExpr.Values
         /// <summary>
         /// 元组内容
         /// </summary>
-        private IExpr[] Contents { get; set; }
+        private CollectionItemValue[] Contents { get; set; }
 
-        protected override IEnumerable<IExpr> _Contents { get => Contents; }
+        protected override IEnumerable<CollectionItemValue> _Contents { get => Contents; }
 
         public override int Count => Contents == null ? 0 : Contents.Length;
 
@@ -28,7 +28,7 @@ namespace iExpr.Values
             }
             set
             {
-                ((CollectionItemValue)Contents[index]).Value = value;
+                Contents[index].Value = value;
             }
         }
         
@@ -58,7 +58,6 @@ namespace iExpr.Values
         public TupleValue(IEnumerable<IExpr> exprs) : this()
         {
             Reset(exprs);
-            
         }
 
         public override bool Equals(IExpr other)

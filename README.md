@@ -5,12 +5,16 @@
 
 ![](https://img.shields.io/badge/framework-.netstandard2.0-blue.svg)
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
+![](https://img.shields.io/badge/alpha-v0.5-blue.svg)
 [![](https://img.shields.io/badge/nuget-v0.3-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.3.0)
+![](http://progressed.io/bar/50?title=done)
 
 + Author: Stardust D.L.
-+ Version: 0.3
++ Version: 0.5
 
 The core types and functions of iExpr. 
+
+> Current version is coding thesedays.
 
 # Functions
 
@@ -27,8 +31,8 @@ PM> Install-Package iExpr.Core -Version 0.3.0
 
 # Note
 
-The next version is being designed and this document will change soon. Please wait for next version.  
-I will put the source code of a sample logic function extension for iExpr soon.
+The version 0.5 is developing. I have changed many things from v0.3 to improve its extensibility. 
+Some APIs have been changed. Maybe you can find them in wiki some days later (but it's still **empty** now).
 
 # Links
 

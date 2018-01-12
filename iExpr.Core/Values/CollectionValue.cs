@@ -6,7 +6,7 @@ using System.Text;
 
 namespace iExpr.Values
 {
-    internal sealed class CollectionItemValue : ConcreteValue
+    public sealed class CollectionItemValue : ConcreteValue
     {
         public override bool IsConstant => base.IsConstant;
 
@@ -32,9 +32,9 @@ namespace iExpr.Values
         }
     }
 
-    public abstract class CollectionValue: IValue,IEnumerable<IExpr>
+    public abstract class CollectionValue: IValue,IEnumerable<CollectionItemValue>, IEnumerable<IExpr>
     {
-        protected abstract IEnumerable<IExpr> _Contents { get; }
+        protected abstract IEnumerable<CollectionItemValue> _Contents { get; }
 
         public abstract void Reset(IEnumerable<IExpr> vals = null);
 
@@ -69,7 +69,7 @@ namespace iExpr.Values
             }
         }
 
-        public IEnumerator<IExpr> GetEnumerator()
+        public IEnumerator<CollectionItemValue> GetEnumerator()
         {
             return _Contents.GetEnumerator();
         }
@@ -80,5 +80,11 @@ namespace iExpr.Values
         }
 
         public abstract bool Equals(IExpr other);
+
+        IEnumerator<IExpr> IEnumerable<IExpr>.GetEnumerator()
+        {
+            foreach (var v in _Contents)
+                yield return (v.Value is IExpr) ? (IExpr)v.Value : v;
+        }
     }
 }
