@@ -9,7 +9,7 @@ namespace iExpr.Evaluators
         public IExpr[] Arguments { get; private set; }
         
 
-        public FunctionArgument(IExpr[] args)
+        public FunctionArgument(params IExpr[] args)
         {
             Arguments = args;
         }

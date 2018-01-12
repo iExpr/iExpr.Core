@@ -10,7 +10,7 @@
 ![](http://progressed.io/bar/50?title=done)
 
 + Author: Stardust D.L.
-+ Version: 0.5
++ Version: 0.5.1
 
 The core types and functions of iExpr. 
 

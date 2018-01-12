@@ -124,6 +124,11 @@ namespace iExpr.Parser
                 this.Add(v.ID, v);
             }
         }
+
+        public void AddFunction(PreFunctionValue func)
+        {
+            this.Add(new ConstantToken(func.Keyword, func));
+        }
     }
 
     /// <summary>

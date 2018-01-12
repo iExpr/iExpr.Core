@@ -63,11 +63,11 @@ namespace iExpr.Evaluators
             return res;
         }
 
-        public IExpr Evaluate(IExpr expr)
+        public IExpr Evaluate(IExpr expr,bool evalConstant=false)
         {
             try
             {
-                return Evaluator.Evaluate(expr, this);
+                return Evaluator.Evaluate(expr, this,evalConstant);
             }
             catch(OperationCanceledException)
             {

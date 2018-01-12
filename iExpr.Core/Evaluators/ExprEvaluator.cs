@@ -142,7 +142,7 @@ namespace iExpr.Evaluators
 
         public static IExpr EvaluateNodeCall(ExprNodeCall expr, EvalContext environment)
         {
-            var head = environment.Evaluate(expr.HeadExpr);
+            var head = OperationHelper.GetValue < IValue > (environment.Evaluate(expr.HeadExpr));
             //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
             if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
             var cs = environment.GetChild();//开辟一个子环境
@@ -175,9 +175,9 @@ namespace iExpr.Evaluators
         {
             if(expr.Children?.Length!=1)
                 throw new EvaluateException("The index content is invalid.");
-            var pind = environment.Evaluate(expr.Children[0]) as IValue;
-            int ind = ConcreteValueHelper.GetValue<int>(pind);//TODO: Check for null
-            var head = environment.Evaluate(expr.HeadExpr);
+            var ind = OperationHelper.GetValue<int>(environment.Evaluate(expr.Children[0]));
+            //int ind = ConcreteValueHelper.GetValue<int>(pind);//TODO: Check for null
+            var head = OperationHelper.GetValue < IValue > (environment.Evaluate(expr.HeadExpr));
             switch (head)
             {
                 case ListValue l:

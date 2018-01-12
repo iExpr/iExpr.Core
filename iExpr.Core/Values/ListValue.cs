@@ -102,8 +102,9 @@ namespace iExpr.Values
 
         public void CopyTo(IExpr[] array, int arrayIndex)
         {
-            throw new Exceptions.UndefinedExecuteException();
-            //((IList<IExpr>)this.values).CopyTo(array, arrayIndex);
+            //throw new Exceptions.UndefinedExecuteException();
+
+            new List<IExpr>((this.values.Select(x=>(IExpr)x))).CopyTo(array, arrayIndex);
         }
 
         public bool Remove(IExpr item)

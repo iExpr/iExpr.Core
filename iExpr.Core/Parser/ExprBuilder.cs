@@ -342,8 +342,9 @@ namespace iExpr.Parser
                     IExpr l=null, r=null;
                     if (last.ArgumentCount != 1 && last.ArgumentCount != 2) throw new UndefinedExecuteException();
                     //TODO: Support ovvri.. functions
-                    if (last.ArgumentCount == 1)
+                    if (last.ArgumentCount == 1)//like !x but not x!
                     {
+                        if(last.Association == Association.Left) throw new UndefinedExecuteException();
                         if (val.Peek().id > p) l = val.Pop().val;
                         if (l == null) throw new UndefinedExecuteException();
                         val.Push((new ExprNodeSingleOperation(last, l), cur));
@@ -502,21 +503,37 @@ namespace iExpr.Parser
                             }
                             break;
                         case SymbolType.Operation:
-                            if (opt.Count == 0) opt.Push((Symbols[s], cur));
-                            else
                             {
                                 var op = Symbols[s];
-                                var pp = opt.Peek();
-                                var p = edges.Peek();
-                                while (pp.id > p
-                                    && (op.Priority > pp.val.Priority
-                                    || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
+
+                                if (opt.Count == 0)
                                 {
-                                    _pop(cur - 1);
-                                    if (opt.Count == 0) break;
-                                    pp = opt.Peek();
+                                    if (op.ArgumentCount == 1 && op.Association == Association.Left)
+                                    {
+                                        if(val.Count==0)throw new ParseException("No left expr.");
+                                        val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                    }
+                                    else opt.Push((op, cur));
                                 }
-                                opt.Push((op, cur));
+                                else
+                                {
+                                    var pp = opt.Peek();
+                                    var p = edges.Peek();
+                                    while (pp.id > p
+                                        && (op.Priority > pp.val.Priority
+                                        || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
+                                    {
+                                        _pop(cur - 1);
+                                        if (opt.Count == 0) break;
+                                        pp = opt.Peek();
+                                    }
+                                    if (op.ArgumentCount == 1 && op.Association == Association.Left)
+                                    {
+                                        if(val.Count==0)throw new ParseException("No left expr.");
+                                        val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                    }
+                                    else opt.Push((op, cur));
+                                }
                             }
                             break;
                         case SymbolType.Variable:

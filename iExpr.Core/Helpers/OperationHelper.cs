@@ -71,16 +71,41 @@ namespace iExpr.Helpers
         public static T[] GetValue<T>(params IExpr[] val)
         {
             return val.Select((IExpr e) => {
-                if (e is ConcreteValue) return ConcreteValueHelper.GetValue<T>(e);
-                else if (e is ConstantToken) return ConcreteValueHelper.GetValue<T>((e as ConstantToken).Value);
-                throw new Exceptions.UndefinedExecuteException();
+                return GetValue<T>(e);
                 }).ToArray();
+        }
+
+        /// <summary>
+        /// 获取值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="exp"></param>
+        /// <returns></returns>
+        public static T GetValue<T>(ConcreteValue exp)
+        {
+            try
+            {
+                var v = exp;
+                if (v.Value is T) return (T)v.Value;
+                return (T)Convert.ChangeType(v.Value, typeof(T));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{exp} is not a constant", ex);
+            }
         }
 
         public static T GetValue<T>(IExpr e)
         {
-            if (e is ConcreteValue) return ConcreteValueHelper.GetValue<T>(e);
-            else if (e is ConstantToken) return ConcreteValueHelper.GetValue<T>((e as ConstantToken).Value);
+            if (e is ConcreteValue) return GetValue<T>((ConcreteValue)e);
+            else if (e is ConstantToken)
+            {
+                var t = e as ConstantToken;
+                if (t.Value is ConcreteValue)
+                    return GetValue<T>((ConcreteValue)t.Value);
+                else return (T)t.Value;
+            }
+            return (T)e;
             throw new Exceptions.UndefinedExecuteException();
         }
 

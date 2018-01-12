@@ -16,8 +16,8 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>sddl_iExprCore.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <Version>0.5.0</Version>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <Version>0.5.1</Version>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
     <PackageIconUrl>https://github.com/iExpr/iExpr.Core/blob/master/resources/images/core.png?raw=true</PackageIconUrl>
   </PropertyGroup>
 
@@ -40,6 +40,8 @@
     <Compile Remove="ConcreteToken.cs" />
     <Compile Remove="ExprTree.cs" />
     <Compile Remove="Function.cs" />
+    <Compile Remove="Helpers\ConcreteValueHelper.cs" />
+    <Compile Remove="Helpers\ExprHelper.cs" />
     <Compile Remove="Helpers\ExprWorker.cs" />
     <Compile Remove="ICalculator.cs" />
     <Compile Remove="Exprs.Core\CoreEnvironmentProvider.cs" />

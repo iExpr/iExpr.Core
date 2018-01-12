@@ -10,25 +10,7 @@ namespace iExpr.Helpers
     /// </summary>
     public class ConcreteValueHelper
     {
-        /// <summary>
-        /// 获取值
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="exp"></param>
-        /// <returns></returns>
-        public static T GetValue<T>(IExpr exp)
-        {
-            try
-            {
-                var v = (exp as ConcreteValue);
-                if (v.Value is T) return (T)v.Value;
-                return (T)Convert.ChangeType(v.Value, typeof(T));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{exp} is not a constant", ex);
-            }
-        }
+        
 
 
 
