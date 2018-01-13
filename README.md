@@ -5,9 +5,9 @@
 
 ![](https://img.shields.io/badge/framework-.netstandard2.0-blue.svg)
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
-![](https://img.shields.io/badge/alpha-v0.5.2-blue.svg)
-[![](https://img.shields.io/badge/nuget-v0.3-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.3.0)
-![](http://progressed.io/bar/50?title=done)
+![](https://img.shields.io/badge/release-v0.5.2-blue.svg)
+[![](https://img.shields.io/badge/nuget-v0.5.2.2-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.5.2.2)
+![](http://progressed.io/bar/60?title=done)
 
 + Author: Stardust D.L.
 + Version: 0.5.2
@@ -26,8 +26,26 @@ The core types and functions of iExpr.
 # Install
 
 ```
-PM> Install-Package iExpr.Core -Version 0.3.0
+PM> Install-Package iExpr.Core -Version 0.5.2.2
 ```
+
+# Brief Usage
+
+1. Install the package from nuget
+2. Define your operations and functions
+3. implement your own **ParseEnvironment** based on `iExpr.Parser.ParseEnvironment`
+3. implement your own **EvalEnvironment** based on `iExpr.Parser.EvalEnvironment`
+4. Use the code below to evaluate your expression:
+    ```cs
+    ParseEnvironment ep = new YourParseEnvironment();
+    EvalEnvironment ep = new YourEvalEnvironment();
+    ExprBuilder eb = new ExprBuilder(ep);
+    var buildedExpr = eb.GetExpr(exprString);
+    var context = ev.CreateContext().GetChild();
+    var evaluatedExpr=context.Evaluate(buildedExpr);
+    ```
++ You can go to `iExpr.Exprs` to see how to implement your own environment and operations. [Link](https://github.com/iExpr/iExpr.Exprs)
+    + The logic project is a simple example, and the program project is a complex one.
 
 # Note
 
