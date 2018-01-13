@@ -7,7 +7,7 @@ namespace iExpr.Exceptions
     /// <summary>
     /// 变量赋值时使用非值类型时触发
     /// </summary>
-    public class NotValueException: ExprException
+    public class NotValueException: EvaluateException
     {
     }
 }

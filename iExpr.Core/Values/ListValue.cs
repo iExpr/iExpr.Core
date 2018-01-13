@@ -9,7 +9,7 @@ namespace iExpr.Values
     /// <summary>
     /// 列表值
     /// </summary>
-    public class ListValue : CollectionValue,IList<IExpr>
+    public class ListValue : CollectionValue,IList<IValue>
     {
         private List<CollectionItemValue> values = new List<CollectionItemValue>();
 
@@ -17,7 +17,7 @@ namespace iExpr.Values
 
         public bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
 
-        public IExpr this[int index]
+        public IValue this[int index]
         {
             get => this.values[index];
             set => this.values[index].Value = value;//TODO: Attetion to this.
@@ -31,7 +31,7 @@ namespace iExpr.Values
             return $"[{String.Join(",", values.Select(x => x.Value?.ToString()))}]";
         }
 
-        public override void Reset(IEnumerable<IExpr> vals = null)
+        public override void Reset(IEnumerable<IValue> vals = null)
         {
             this.Clear();
             foreach (var v in vals) this.Add(v);
@@ -47,7 +47,7 @@ namespace iExpr.Values
 
         }
 
-        public ListValue(IEnumerable<IExpr> exprs):this()
+        public ListValue(IEnumerable<IValue> exprs):this()
         {
             Reset(exprs);
         }
@@ -58,9 +58,9 @@ namespace iExpr.Values
             return this.ToString() == (other as ListValue).ToString();
         }
 
-        public int IndexOf(IExpr item)
+        public int IndexOf(IValue item)
         {
-            if (item is ConcreteValue) item = (item as ConcreteValue).Value as IExpr;
+            if (item is ConcreteValue) item = (item as ConcreteValue).Value as IValue;
             for (int i = 0; i < values.Count; i++)
             {
                 if (values[i].Value == item) return i;
@@ -75,7 +75,7 @@ namespace iExpr.Values
             return null;
         }
 
-        public void Insert(int index, IExpr item)
+        public void Insert(int index, IValue item)
         {
             values.Insert(index, new CollectionItemValue(item));
         }
@@ -85,7 +85,7 @@ namespace iExpr.Values
             values.RemoveAt(index);
         }
 
-        public void Add(IExpr item)
+        public void Add(IValue item)
         {
             values.Add(new CollectionItemValue(item));
         }
@@ -95,19 +95,19 @@ namespace iExpr.Values
             values.Clear();
         }
 
-        public bool Contains(IExpr item)
+        public bool Contains(IValue item)
         {
             return IndexOf(item) != -1;
         }
 
-        public void CopyTo(IExpr[] array, int arrayIndex)
+        public void CopyTo(IValue[] array, int arrayIndex)
         {
             //throw new Exceptions.UndefinedExecuteException();
 
-            new List<IExpr>((this.values.Select(x=>(IExpr)x))).CopyTo(array, arrayIndex);
+            new List<IValue>((this.values.Select(x=>(IValue)x))).CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(IExpr item)
+        public bool Remove(IValue item)
         {
             var id = GetItemValue(item);if (id == null) return true;
             return values.Remove(id);

@@ -6,6 +6,8 @@ namespace iExpr
 {
     public class ConstantToken : VariableToken
     {
+        public override bool IsConstant => true;
+
         public IValue Value { get; protected set; }
 
         public ConstantToken(string id, IValue val, ModifierToken attached0, params ModifierToken[] attached) : this(id,val)

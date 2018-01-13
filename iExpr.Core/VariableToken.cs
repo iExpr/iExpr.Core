@@ -10,15 +10,16 @@ namespace iExpr
     /// <summary>
     /// 变量值
     /// </summary>
-    public class VariableToken : ExprToken
+    public class VariableToken : ExprToken,IValue
     {
-        
         /// <summary>
         /// 变量标识符
         /// </summary>
         public string ID { get; set; }
 
         public ModifierToken[] Attached { get; set; }
+
+        public virtual bool IsConstant => false;
 
         public VariableToken(string id)
         {

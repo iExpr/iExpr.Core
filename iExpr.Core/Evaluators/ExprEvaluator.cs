@@ -19,7 +19,9 @@ namespace iExpr.Evaluators
         IExpr EvaluateVariable(VariableToken expr, EvalContext environment);
         IExpr EvaluateColletionValue(CollectionValue expr, EvalContext environment);*/
         IExpr Evaluate(IExpr expr, EvalContext context, bool evalConstant = false);
-        
+
+        //IExpr PreEvaluate(IExpr expr, EvalContext context, bool evalConstant = false);
+
     }
 
     public class ExprEvaluator : IExprEvaluator
@@ -70,6 +72,8 @@ namespace iExpr.Evaluators
                     case ConcreteValue o:
                         if (o.Value is IExpr) return context.Evaluate((IExpr)o.Value);
                         return o;
+                    case NativeExprValue o:
+                        return context.Evaluate(o.Expr);
                     default:
                         throw new EvaluateException("Can't evaluate this kind of expr.");
                 }
@@ -84,37 +88,42 @@ namespace iExpr.Evaluators
             }
         }
 
+        /// <summary>
+        /// 计算，并创建新的集合
+        /// </summary>
+        /// <param name="expr"></param>
+        /// <param name="environment"></param>
+        /// <returns></returns>
         public static IExpr EvaluateColletionValue(CollectionValue expr, EvalContext environment)
         {
-            List<IExpr> vs = new List<IExpr>();
+            if (expr.IsConstant == true) return expr;
+            List<IValue> vs = new List<IValue>();
             //var que = from x in ls.Contents select Calculate(x);
             try
             {
-                foreach (var v in (IEnumerable<IExpr>)expr)
+                foreach (var v in (IEnumerable<IValue> )expr)
                 {
-                    var val = environment.Evaluate(v);
-                    vs.Add(val);
-                    continue;
-                    /*if (val is IValue)
+                    if (v.IsConstant) vs.Add(v);
+                    else
                     {
-                        vs.Add((IValue)val);
+                        var val = environment.Evaluate(v);
+                        if (val is IValue)
+                        {
+                            vs.Add((IValue)val);
+                        }
+                        else//值是一个表达式
+                        {
+                            throw new NotValueException();
+                        }
                     }
-                    else//值是一个表达式
-                    {
-                        throw new NotValueException();
-                    }*/
                 }
-                var vc = expr.CreateNew();
-                vc.Reset(vs);
-                return vc;
+                var res = expr.CreateNew();
+                res.Reset(vs);
+                return res;
             }
             catch (ExprException ex)
             {
                 throw ex;
-            }
-            catch (Exception ex)
-            {
-                throw new Exceptions.EvaluateException("Failed to evaluate.", ex);
             }
         }
 
@@ -204,6 +213,11 @@ namespace iExpr.Evaluators
             if (v == null) return expr;
             else
             {
+                if(v is IValue)
+                {
+                    var t = (IValue)v;
+                    if (t.IsConstant) return t;
+                }
                 return environment.Evaluate(v);//TODO: Attention here.
             }
         }

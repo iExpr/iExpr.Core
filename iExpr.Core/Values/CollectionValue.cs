@@ -32,11 +32,11 @@ namespace iExpr.Values
         }
     }
 
-    public abstract class CollectionValue: IValue,IEnumerable<CollectionItemValue>, IEnumerable<IExpr>
+    public abstract class CollectionValue: IValue,IEnumerable<CollectionItemValue>, IEnumerable<IValue>
     {
         protected abstract IEnumerable<CollectionItemValue> _Contents { get; }
 
-        public abstract void Reset(IEnumerable<IExpr> vals = null);
+        public abstract void Reset(IEnumerable<IValue> vals = null);
 
         /// <summary>
         /// 创建一个同类型的新对象（用于拷贝等）
@@ -81,10 +81,10 @@ namespace iExpr.Values
 
         public abstract bool Equals(IExpr other);
 
-        IEnumerator<IExpr> IEnumerable<IExpr>.GetEnumerator()
+        IEnumerator<IValue> IEnumerable<IValue>.GetEnumerator()
         {
             foreach (var v in _Contents)
-                yield return (v.Value is IExpr) ? (IExpr)v.Value : v;
+                yield return (v.Value is IValue) ? (IValue)v.Value : v;
         }
     }
 }

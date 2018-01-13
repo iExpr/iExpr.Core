@@ -20,7 +20,7 @@ namespace iExpr.Values
 
         public override int Count => Contents == null ? 0 : Contents.Length;
 
-        public IExpr this[int index]
+        public IValue this[int index]
         {
             get
             {
@@ -39,7 +39,7 @@ namespace iExpr.Values
             return $"({String.Join(",", Contents.Select(x => x?.ToString()))})";
         }
 
-        public override void Reset(IEnumerable<IExpr> vals=null)
+        public override void Reset(IEnumerable<IValue> vals=null)
         {
             if (vals == null) Contents = null;
             Contents = vals.Select(x => new CollectionItemValue(x)).ToArray();
@@ -55,7 +55,7 @@ namespace iExpr.Values
 
         }
 
-        public TupleValue(IEnumerable<IExpr> exprs) : this()
+        public TupleValue(IEnumerable<IValue> exprs) : this()
         {
             Reset(exprs);
         }

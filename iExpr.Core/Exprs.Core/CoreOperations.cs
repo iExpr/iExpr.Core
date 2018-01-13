@@ -1,4 +1,5 @@
 ﻿using iExpr.Evaluators;
+using iExpr.Exceptions;
 using iExpr.Helpers;
 using iExpr.Values;
 using System;
@@ -14,7 +15,7 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                List<IExpr> ls = new List<IExpr>();
+                List<IValue> ls = new List<IValue>();
 
                 foreach (var v in args)
                 {
@@ -23,9 +24,11 @@ namespace iExpr.Exprs.Core
                         case CollectionValue c:
                             ls.AddRange(c);
                             break;
-                        default:
-                            ls.Add(v);
+                        case IValue c:
+                            ls.Add(c);
                             break;
+                        default:
+                            throw new NotValueException();
                     }
                 }
                 return new ListValue(ls);
@@ -36,7 +39,7 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                List<IExpr> ls = new List<IExpr>();
+                List<IValue> ls = new List<IValue>();
 
                 foreach (var v in args)
                 {
@@ -45,9 +48,11 @@ namespace iExpr.Exprs.Core
                         case CollectionValue c:
                             ls.AddRange(c);
                             break;
-                        default:
-                            ls.Add(v);
+                        case IValue c:
+                            ls.Add(c);
                             break;
+                        default :
+                            throw new NotValueException();
                     }
                 }
                 return new SetValue(ls);
@@ -58,7 +63,7 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                List<IExpr> ls = new List<IExpr>();
+                List<IValue> ls = new List<IValue>();
 
                 foreach (var v in args)
                 {
@@ -67,9 +72,11 @@ namespace iExpr.Exprs.Core
                         case CollectionValue c:
                             ls.AddRange(c);
                             break;
-                        default:
-                            ls.Add(v);
+                        case IValue c:
+                            ls.Add(c);
                             break;
+                        default:
+                            throw new NotValueException();
                     }
                 }
                 return new TupleValue(ls);
@@ -105,7 +112,7 @@ namespace iExpr.Exprs.Core
                 List<string> vs = new List<string>();
                 if (args[0] is TupleValue)
                 {
-                    var _arg = (IEnumerable<IExpr> )args[0];
+                    var _arg = (IEnumerable<IValue> )args[0];
                     foreach (VariableToken v in _arg)
                     {
                         vs.Add(v.ID);
@@ -115,6 +122,7 @@ namespace iExpr.Exprs.Core
                 {
                     vs.Add((args[0] as VariableToken).ID);
                 }
+                //throw new UncertainArgumentException();
                 return new RuntimeFunctionValue(args[1], vs.ToArray());
             }, null, (double)Priority.Lowest, Association.Left, 2, OperationHelper.GetSelfCalculateAll()
             );

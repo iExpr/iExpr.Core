@@ -1,7 +1,7 @@
-﻿using iExpr.Values;
+﻿using iExpr.Exceptions;
+using iExpr.Values;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -12,24 +12,6 @@ namespace iExpr.Helpers
     /// </summary>
     public class OperationHelper
     {
-        /// <summary>
-        /// 判断参数是否均为具体值
-        /// </summary>
-        /// <param name="val"></param>
-        /// <returns></returns>
-        public static bool AssertConstantValue(params IExpr[] val)
-        {
-            foreach (var v in val)
-            {
-                if (v is IValue)
-                {
-                    if (!((IValue)v).IsConstant) return false;
-                }
-                else if (!(v is ConstantToken)) return false;
-            }
-            return true;
-        }
-
         public static bool AssertArgsNumber(int n,params IExpr[] args)
         {
             return args.Length == n;
@@ -37,7 +19,7 @@ namespace iExpr.Helpers
 
         public static void AssertArgsNumberThrowIf(int n, params IExpr[] args)
         {
-            if(!AssertArgsNumber(n,args)) throw new EvaluateException("The number of arguments is wrong");
+            if(!AssertArgsNumber(n,args)) throw new Exceptions.EvaluateException("The number of arguments is wrong");
         }
 
         /// <summary>
@@ -45,7 +27,7 @@ namespace iExpr.Helpers
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        public static bool AssertConstantValue<T>(params IExpr[] val)
+        public static bool AssertCertainValue<T>(params IExpr[] val)
         {
             foreach (var v in val)
             {
@@ -61,6 +43,33 @@ namespace iExpr.Helpers
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// 判断参数是否均为具体值
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static bool AssertCertainValue(params IExpr[] val)
+        {
+            foreach (var v in val)
+            {
+                if (v is IValue)
+                {
+                    if (!((IValue)v).IsConstant) return false;
+                }
+                else if (!(v is ConstantToken)) return false;
+            }
+            return true;
+        }
+
+        public static void AssertCertainValueThrowIf(params IExpr[] val)
+        {
+            if (AssertCertainValue(val) == false) throw new NotValueException();
+        }
+        public static void AssertCertainValueThrowIf<T>(params IExpr[] val)
+        {
+            if (AssertCertainValue<T>(val) == false) throw new NotValueException();
         }
 
         /// <summary>

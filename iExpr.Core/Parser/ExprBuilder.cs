@@ -432,7 +432,7 @@ namespace iExpr.Parser
                                 package(cur);//最后一段打包
 
                                 List<IExpr> l = new List<IExpr>();
-                                while (val.Count > 0 && val.Peek().id > p.Item2)
+                                while (val.Count > 0 && val.Peek().id >= p.Item2)
                                 {
                                     l.Add(val.Pop().val);
                                 }
@@ -458,7 +458,7 @@ namespace iExpr.Parser
                                             {
                                                 if (l.Count > 1)//括号里有多项（如果只有一项零项就不生成Tuple）,TODO:注意这里
                                                 {
-                                                    val.Push((new TupleValue(l), cur));
+                                                    val.Push((new TupleValue(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x))), cur));
                                                 }
                                                 else
                                                 {
@@ -481,7 +481,7 @@ namespace iExpr.Parser
                                                     flg = true;
                                                 }
                                             }
-                                            if (flg == false) val.Push((new ListValue(l), cur));
+                                            if (flg == false) val.Push((new ListValue(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x))), cur));
                                         }
                                         break;
                                     case SymbolType.RightBrace:
@@ -498,7 +498,7 @@ namespace iExpr.Parser
                                                     flg = true;
                                                 }
                                             }
-                                            if (flg == false) val.Push((new SetValue(l), cur));
+                                            if (flg == false) val.Push((new SetValue(l.Select(x => x is IValue?(IValue)x:new NativeExprValue(x))), cur));
                                         }
                                         break;
                                 }
