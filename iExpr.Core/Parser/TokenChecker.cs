@@ -8,12 +8,15 @@ namespace iExpr.Parser
     {
         protected StringBuilder Str = new StringBuilder();
 
+        public string LastToken { get; protected set; }
+
         protected bool? Flag = null;
 
         public virtual void Clear()
         {
             Str.Clear();
             Flag = null;
+            LastToken = null;
         }
 
         public virtual string GetValue()
@@ -21,19 +24,23 @@ namespace iExpr.Parser
             return Str.ToString();
         }
 
-        public abstract bool Test(char c);
+        public abstract bool? Test(char c);
 
         /// <summary>
         /// 加入一个字符，检查是否满足条件
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
-        public virtual bool Append(char c)
+        public virtual bool? Append(char c)
         {
-            if (Flag == null) Flag = Test(c);
-            else Flag &= Test(c);
+            var b = Test(c);
+            if (Flag == true)
+                if (b != true)
+                    LastToken = this.GetValue();
+            if (Flag == null) Flag = b;
+            else Flag &= b;
             Str.Append(c);
-            return Flag.Value;
+            return Flag;
         }
 
         /// <summary>
@@ -49,7 +56,7 @@ namespace iExpr.Parser
 
     public class VariableTokenChecker : TokenChecker
     {
-        public override bool Test(char c)
+        public override bool? Test(char c)
         {
             bool isv() => c == '_' || char.IsLetterOrDigit(c);
             if (Flag == null)
@@ -84,7 +91,7 @@ namespace iExpr.Parser
             base.Clear(); current = OperationTrie;
         }
 
-        public override bool Test(char c)
+        public override bool? Test(char c)
         {
             if (current == null) return false;
             else if (current.ContainsKey(c) == false)
@@ -94,7 +101,8 @@ namespace iExpr.Parser
             else
             {
                 current = current[c];
-                return true;//attention to flg==null
+                if (current.Flag) return true;
+                else return null;
             }
         }
     }

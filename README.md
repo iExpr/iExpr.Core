@@ -5,12 +5,12 @@
 
 ![](https://img.shields.io/badge/framework-.netstandard2.0-blue.svg)
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
-![](https://img.shields.io/badge/alpha-v0.5-blue.svg)
+![](https://img.shields.io/badge/alpha-v0.5.2-blue.svg)
 [![](https://img.shields.io/badge/nuget-v0.3-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.3.0)
 ![](http://progressed.io/bar/50?title=done)
 
 + Author: Stardust D.L.
-+ Version: 0.5.1
++ Version: 0.5.2
 
 The core types and functions of iExpr. 
 
@@ -21,7 +21,7 @@ The core types and functions of iExpr.
 + You can use **iExpr.Core** to define your own expression types by creating different operations.  
 + Also you can use it to *"create"* a simple programming language. 
 
-    > PS: this will be possible in next version.
+    > PS: this is possible in [iExpr.Expr.Program](https://github.com/iExpr/iExpr.Exprs) v0.5.0 based on iExpr.Core v0.5.2.
 
 # Install
 

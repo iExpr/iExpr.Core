@@ -85,9 +85,18 @@ namespace iExpr.Helpers
         {
             try
             {
+                if (exp == null) return default(T);
                 var v = exp;
                 if (v.Value is T) return (T)v.Value;
-                return (T)Convert.ChangeType(v.Value, typeof(T));
+                try
+                {
+                    return (T)Convert.ChangeType(v.Value, typeof(T));
+                }
+                catch
+                {
+                    if (v.Value == null) return default(T);
+                    else return (T)v.Value;
+                }
             }
             catch (Exception ex)
             {

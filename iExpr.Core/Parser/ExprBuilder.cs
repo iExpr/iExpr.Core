@@ -102,24 +102,38 @@ namespace iExpr.Parser
                 while (cnt > 1 && cur<expr.Length)
                 {
                     c = expr[cur];
-                    if (otc.Check() != false) cnt -= otc.Append(c) ? 0 : 1;
-                    if (btc.Check() != false) cnt -= btc.Append(c) ? 0 : 1;
-                    if (vtc.Check() != false) cnt -= vtc.Append(c) ? 0 : 1;
+                    if (otc.Check() != false) cnt -= otc.Append(c)==false ? 1:0;
+                    if (btc.Check() != false) cnt -= btc.Append(c) == false ? 1 : 0;
+                    if (vtc.Check() != false) cnt -= vtc.Append(c) == false ? 1 : 0;
                     sb.Append(c);
                     cur++;
                 }
-                if (cnt == 0) throw new ParseException(sb.ToString(), "Can't recoginize this token");
-                TokenChecker curtoken = null;
                 SymbolType ret = SymbolType.None;
-                if (otc.Check() != false) { curtoken = otc; ret = SymbolType.Operation; }
-                else if (btc.Check() != false) { curtoken = btc; ret = SymbolType.BasicValue; }
-                else if(vtc.Check()!=false) { curtoken = vtc; ret = SymbolType.Variable; }
-                while (cur < expr.Length)
+                if (cnt == 0)
                 {
-                    c = expr[cur];
-                    if (!curtoken.Append(c)) break;
-                    sb.Append(c);
-                    cur++;
+                    sb.Remove(sb.Length - 1, 1);
+                    string to = otc.LastToken, tb = btc.LastToken, tv = vtc.LastToken;
+                    int lo = to?.Length ?? 0, lb = tb?.Length ?? 0, lv = tv?.Length ?? 0;
+                    int mx = Math.Max(lo, Math.Max(lv, lb));
+                    if(mx==0)throw new ParseException(sb.ToString(), "Can't recoginize this token");
+                    if (lo == mx) ret = SymbolType.Operation;
+                    else if (lb == mx) ret = SymbolType.BasicValue;
+                    else ret = SymbolType.Variable;
+                    cur--;//Attention!
+                }
+                else
+                {
+                    TokenChecker curtoken = null;
+                    if (otc.Check() != false) { curtoken = otc; ret = SymbolType.Operation; }
+                    else if (btc.Check() != false) { curtoken = btc; ret = SymbolType.BasicValue; }
+                    else if (vtc.Check() != false) { curtoken = vtc; ret = SymbolType.Variable; }
+                    while (cur < expr.Length)
+                    {
+                        c = expr[cur];
+                        if (curtoken.Append(c)==false) break;
+                        sb.Append(c);
+                        cur++;
+                    }
                 }
                 cur--;
                 return (sb.ToString(), ret);
@@ -505,34 +519,40 @@ namespace iExpr.Parser
                         case SymbolType.Operation:
                             {
                                 var op = Symbols[s];
-
-                                if (opt.Count == 0)
+                                if (op.ArgumentCount == 0)
                                 {
-                                    if (op.ArgumentCount == 1 && op.Association == Association.Left)
-                                    {
-                                        if(val.Count==0)throw new ParseException("No left expr.");
-                                        val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
-                                    }
-                                    else opt.Push((op, cur));
+                                    val.Push((new ExprNodeSingleOperation(op, null),cur));
                                 }
                                 else
                                 {
-                                    var pp = opt.Peek();
-                                    var p = edges.Peek();
-                                    while (pp.id > p
-                                        && (op.Priority > pp.val.Priority
-                                        || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
+                                    if (opt.Count == 0)
                                     {
-                                        _pop(cur - 1);
-                                        if (opt.Count == 0) break;
-                                        pp = opt.Peek();
+                                        if (op.ArgumentCount == 1 && op.Association == Association.Left)
+                                        {
+                                            if (val.Count == 0) throw new ParseException("No left expr.");
+                                            val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                        }
+                                        else opt.Push((op, cur));
                                     }
-                                    if (op.ArgumentCount == 1 && op.Association == Association.Left)
+                                    else
                                     {
-                                        if(val.Count==0)throw new ParseException("No left expr.");
-                                        val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                        var pp = opt.Peek();
+                                        var p = edges.Peek();
+                                        while (pp.id > p
+                                            && (op.Priority > pp.val.Priority
+                                            || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
+                                        {
+                                            _pop(cur - 1);
+                                            if (opt.Count == 0) break;
+                                            pp = opt.Peek();
+                                        }
+                                        if (op.ArgumentCount == 1 && op.Association == Association.Left)
+                                        {
+                                            if (val.Count == 0) throw new ParseException("No left expr.");
+                                            val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                        }
+                                        else opt.Push((op, cur));
                                     }
-                                    else opt.Push((op, cur));
                                 }
                             }
                             break;

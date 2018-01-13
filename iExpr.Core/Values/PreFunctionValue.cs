@@ -19,11 +19,14 @@ namespace iExpr.Values
             return t != null && t.ToString() == this.ToString();
         }
 
-        public PreFunctionValue(string keyWord, Func<FunctionArgument, EvalContext, IExpr> calculate, int argsCount = -1)
+        protected PreFunctionValue() { ArgumentCount = -1; }
+
+        public PreFunctionValue(string keyWord, Func<FunctionArgument, EvalContext, IExpr> calculate, int argsCount = -1,bool isselfCal=false)
         {
             Keyword = keyWord;
             EvaluateFunc = calculate;
             ArgumentCount = argsCount;
+            IsSelfCalculate = isselfCal;
         }
 
         public override string ToString()

@@ -11,6 +11,8 @@ namespace iExpr.Parser
     /// </summary>
     public class Trie : Dictionary<char, Trie>
     {
+        public bool Flag { get; set; } = false;
+
         /// <summary>
         /// 插入一个字符串到指定字典树中
         /// </summary>
@@ -23,6 +25,7 @@ namespace iExpr.Parser
                 if (!root.ContainsKey(c)) root.Add(c, new Trie());
                 root = root[c];
             }
+            root.Flag = true;
         }
     }
 }

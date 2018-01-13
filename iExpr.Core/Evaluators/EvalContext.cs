@@ -77,10 +77,6 @@ namespace iExpr.Evaluators
             {
                 throw ex;
             }
-            catch (Exception ex)
-            {
-                throw new Exceptions.EvaluateException("Failed to evaluate.", ex);
-            }
         }
         
         public void AssertNotCancel()
@@ -117,7 +113,7 @@ namespace iExpr.Evaluators
             }
         }
 
-        public void SetVariableValue(string id,IValue val)
+        public void SetVariableValue(string id,IExpr val)
         {
             var p = this;
             while (p != null && p.Variables?.ContainsKey(id) != true) p = p.Parent;

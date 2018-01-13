@@ -9,6 +9,8 @@ namespace iExpr.Values
     {
         public bool IsConstant => true;
 
+        public virtual bool IsSelfCalculate { get; protected set; } = false;
+
         public abstract Func<FunctionArgument, EvalContext, IExpr> EvaluateFunc { get; protected set; }
 
         public abstract int ArgumentCount { get; protected set; }

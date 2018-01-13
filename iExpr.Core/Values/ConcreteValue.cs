@@ -28,15 +28,17 @@ namespace iExpr.Values
 
         public ConcreteValue(object val)
         {
-            Value = val;
+            _Value = val;
         }
 
         public ConcreteValue() : this(null) { }
 
+        protected object _Value = null;
+
         /// <summary>
         /// 值
         /// </summary>
-        public virtual object Value { get; set; }
+        public virtual object Value { get => _Value; set => _Value = value; }
 
         public override string ToString()
         {
@@ -77,5 +79,16 @@ namespace iExpr.Values
         {
             return !(node1 == node2);
         }
+    }
+
+    public class ReadOnlyConcreteValue : ConcreteValue
+    {
+        public override object Value { get => base.Value; set => throw new Exceptions.EvaluateException("Can't change the read-only value"); }
+
+        public ReadOnlyConcreteValue(object val) : base(val)
+        {
+        }
+
+        public ReadOnlyConcreteValue() : base() { }
     }
 }

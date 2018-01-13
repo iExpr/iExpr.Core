@@ -7,7 +7,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Stardust D.L.</Authors>
     <Company>Stardust D.L.</Company>
-    <Description>iExpr 核心类库，提供表达式操作相关基本类型。</Description>
+    <Description>The core types and functions of iExpr.</Description>
     <RepositoryUrl>https://github.com/StardustDL/iExpr.Core</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageProjectUrl>https://github.com/StardustDL/iExpr.Core/wiki</PackageProjectUrl>
@@ -16,8 +16,8 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>sddl_iExprCore.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <Version>0.5.1</Version>
-    <AssemblyVersion>0.5.0.0</AssemblyVersion>
+    <Version>0.5.2</Version>
+    <AssemblyVersion>0.5.2.0</AssemblyVersion>
     <PackageIconUrl>https://github.com/iExpr/iExpr.Core/blob/master/resources/images/core.png?raw=true</PackageIconUrl>
   </PropertyGroup>
 
