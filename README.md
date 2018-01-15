@@ -6,7 +6,8 @@
 ![](https://img.shields.io/badge/framework-.netstandard2.0-blue.svg)
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
 ![](https://img.shields.io/badge/alpha-v0.5.2.7-blue.svg)
-[![](https://img.shields.io/badge/nuget-v0.5.2.2-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.5.2.2)
+[![](https://img.shields.io/badge/nuget-v0.5.2.7-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.5.2.7)
+[![](https://img.shields.io/badge/wiki-v0.5.2.7-blue.svg)](https://github.com/iExpr/iExpr.Core/wiki)
 ![](http://progressed.io/bar/80?title=done)
 
 + Author: Stardust D.L.
@@ -14,8 +15,6 @@
 
 The core types and functions of iExpr. 
 > iExpr is an extensible expression parser and evaluator.
-
-> Current version is coding thesedays.
 
 # Functions
 
@@ -27,7 +26,7 @@ The core types and functions of iExpr.
 # Install
 
 ```
-PM> Install-Package iExpr.Core -Version 0.5.2.2
+PM> Install-Package iExpr.Core -Version 0.5.2.7
 ```
 
 # Brief Usage
@@ -45,14 +44,16 @@ PM> Install-Package iExpr.Core -Version 0.5.2.2
     var context = ev.CreateContext().GetChild();
     var evaluatedExpr=context.Evaluate(buildedExpr);
     ```
+
++ You can go to [**Wiki**](https://github.com/iExpr/iExpr.Core/wiki) for more information.
+
 + You can go to `iExpr.Exprs` to see how to implement your own environment and operations. [Link](https://github.com/iExpr/iExpr.Exprs)
     + The logic project is a simple example
     + For a complex one, you can see [ExprSharp](https://github.com/ExprSharp)
 
 # Note
 
-The version 0.5 is developing. I have changed many things from v0.3 to improve its extensibility. 
-Some APIs have been changed. Maybe you can find them in wiki some days later (but it's still **empty** now).
+A known bug: negetive operator will lead to a parser exception. Please use `0-a`, not `-a`.
 
 # Links
 
