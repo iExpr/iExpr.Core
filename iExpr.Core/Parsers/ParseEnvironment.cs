@@ -1,5 +1,5 @@
 ﻿using iExpr.Helpers;
-using iExpr.Parser;
+using iExpr.Parsers;
 using iExpr.Values;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace iExpr.Parser
+namespace iExpr.Parsers
 {
     /// <summary>
     /// 符号类型
@@ -136,6 +136,8 @@ namespace iExpr.Parser
     /// </summary>
     public abstract class ParseEnvironment
     {
+        Dictionary<string, IOperation> symbols;
+
         /// <summary>
         /// 获取或设置所有运算
         /// </summary>
@@ -151,8 +153,6 @@ namespace iExpr.Parser
         /// </summary>
         public ConstantList Constants { get; protected set; }
 
-        Dictionary<string, IOperation> symbols;
-
         public TokenChecker OperatorChecker { get; protected set; }
 
         public TokenChecker VariableChecker { get; protected set; }
@@ -166,6 +166,21 @@ namespace iExpr.Parser
         /// 获取所有符号
         /// </summary>
         public IReadOnlyDictionary<string, IOperation> Symbols { get => symbols; }
+
+        public virtual ListValueBase GetListValue()
+        {
+            return new ListValue();
+        }
+
+        public virtual SetValueBase GetSetValue()
+        {
+            return new SetValue();
+        }
+
+        public virtual TupleValueBase GetTupleValue()
+        {
+            return new TupleValue();
+        }
 
         /// <summary>
         /// 自动构建字典树和符号列表
@@ -195,7 +210,7 @@ namespace iExpr.Parser
                     return SymbolType.Access;
                 case '@':
                     return SymbolType.At;
-                case '"':
+                case '$':
                     return SymbolType.UnionEdge;
                 case '(':
                     return SymbolType.LeftParentheses;

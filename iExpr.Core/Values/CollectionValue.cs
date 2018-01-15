@@ -1,4 +1,5 @@
 ﻿using iExpr.Exceptions;
+using iExpr.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace iExpr.Values
             set
             {
                 object v = null;
-                if (value is ConcreteValue) v = (value as ConcreteValue).Value;
+                if (value is IExpr) v = OperationHelper.GetValue((IExpr)value);
                 else v = value;
                 base.Value = v;
                 //else throw new ExprException("The item of colletion must be a expr (IExpr).");
@@ -32,11 +33,13 @@ namespace iExpr.Values
         }
     }
 
-    public abstract class CollectionValue: IValue,IEnumerable<CollectionItemValue>, IEnumerable<IValue>
+    public abstract class CollectionValue: IContainsValue,IEnumerable<CollectionItemValue>, IEnumerable<IValue>
     {
         protected abstract IEnumerable<CollectionItemValue> _Contents { get; }
 
         public abstract void Reset(IEnumerable<IValue> vals = null);
+
+        public abstract bool Contains(IValue item);
 
         /// <summary>
         /// 创建一个同类型的新对象（用于拷贝等）
@@ -86,5 +89,7 @@ namespace iExpr.Values
             foreach (var v in _Contents)
                 yield return (v.Value is IValue) ? (IValue)v.Value : v;
         }
+
+        public abstract bool Equals(IValue other);
     }
 }

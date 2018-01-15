@@ -7,7 +7,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>Stardust D.L.</Authors>
     <Company>Stardust D.L.</Company>
-    <Description>The core types and functions of iExpr.</Description>
+    <Description>The core types and functions of iExpr. iExpr is an extensible expression parser and evaluator.</Description>
     <RepositoryUrl>https://github.com/StardustDL/iExpr.Core</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageProjectUrl>https://github.com/StardustDL/iExpr.Core/wiki</PackageProjectUrl>
@@ -16,10 +16,10 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>sddl_iExprCore.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <Version>0.5.2.2</Version>
-    <AssemblyVersion>0.5.2.1</AssemblyVersion>
+    <Version>0.5.2.7</Version>
+    <AssemblyVersion>0.5.2.7</AssemblyVersion>
     <PackageIconUrl>https://github.com/iExpr/iExpr.Core/blob/master/resources/images/core.png?raw=true</PackageIconUrl>
-    <FileVersion>0.5.2.1</FileVersion>
+    <FileVersion>0.5.2.7</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

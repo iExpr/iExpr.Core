@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace iExpr.Parser
+namespace iExpr.Parsers
 {
     public abstract class TokenChecker
     {

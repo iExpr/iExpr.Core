@@ -72,59 +72,42 @@ namespace iExpr.Helpers
             if (AssertCertainValue<T>(val) == false) throw new NotValueException();
         }
 
+        private static  object GetValue(ConcreteValue exp)
+        {
+            if (exp == null) return null;
+            var v = exp;
+            return v.Value;
+        }
+
         /// <summary>
         /// 获取具体值的值
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        public static T[] GetValue<T>(params IExpr[] val)
+        public static object GetValue(params IExpr[] val)
         {
+
             return val.Select((IExpr e) => {
-                return GetValue<T>(e);
-                }).ToArray();
+                return GetValue(e);
+            }).ToArray();
         }
 
         /// <summary>
-        /// 获取值
+        /// 获取具体值的值
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="exp"></param>
+        /// <param name="val"></param>
         /// <returns></returns>
-        public static T GetValue<T>(ConcreteValue exp)
+        public static object GetValue(IExpr e)
         {
-            try
-            {
-                if (exp == null) return default(T);
-                var v = exp;
-                if (v.Value is T) return (T)v.Value;
-                try
-                {
-                    return (T)Convert.ChangeType(v.Value, typeof(T));
-                }
-                catch
-                {
-                    if (v.Value == null) return default(T);
-                    else return (T)v.Value;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{exp} is not a constant", ex);
-            }
-        }
-
-        public static T GetValue<T>(IExpr e)
-        {
-            if (e is ConcreteValue) return GetValue<T>((ConcreteValue)e);
+            if (e is ConcreteValue) return GetValue((ConcreteValue)e);
             else if (e is ConstantToken)
             {
                 var t = e as ConstantToken;
                 if (t.Value is ConcreteValue)
-                    return GetValue<T>((ConcreteValue)t.Value);
-                else return (T)t.Value;
+                    return GetValue((ConcreteValue)t.Value);
+                else return t.Value;
             }
-            return (T)e;
-            throw new Exceptions.UndefinedExecuteException();
+            return e;
         }
 
         /// <summary>

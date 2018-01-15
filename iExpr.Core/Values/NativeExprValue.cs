@@ -16,6 +16,12 @@ namespace iExpr.Values
             return false;
         }
 
+        public bool Equals(IValue other)
+        {
+            if (other is NativeExprValue) return (other as NativeExprValue).Expr.Equals(Expr);
+            return false;
+        }
+
         public NativeExprValue(IExpr val)
         {
             Expr = val;

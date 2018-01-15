@@ -6,10 +6,36 @@ using System.Collections;
 
 namespace iExpr.Values
 {
+    public abstract class SetValueBase : CollectionValue, ISet<IValue>
+    {
+        public abstract bool IsReadOnly { get; }
+
+        public abstract bool Add(IValue item);
+        public abstract void Clear();
+        public abstract void CopyTo(IValue[] array, int arrayIndex);
+        public abstract void ExceptWith(IEnumerable<IValue> other);
+        public abstract void IntersectWith(IEnumerable<IValue> other);
+        public abstract bool IsProperSubsetOf(IEnumerable<IValue> other);
+        public abstract bool IsProperSupersetOf(IEnumerable<IValue> other);
+        public abstract bool IsSubsetOf(IEnumerable<IValue> other);
+        public abstract bool IsSupersetOf(IEnumerable<IValue> other);
+        public abstract bool Overlaps(IEnumerable<IValue> other);
+        public abstract bool Remove(IValue item);
+        public abstract bool SetEquals(IEnumerable<IValue> other);
+        public abstract void SymmetricExceptWith(IEnumerable<IValue> other);
+        public abstract void UnionWith(IEnumerable<IValue> other);
+
+        void ICollection<IValue>.Add(IValue item)
+        {
+            this.Add(item);
+        }
+    }
+
+
     /// <summary>
     /// 集合值
     /// </summary>
-    public class SetValue : CollectionValue,ISet<IValue>
+    public class SetValue : SetValueBase
     {
         /// <summary>
         /// 集合内容
@@ -18,7 +44,7 @@ namespace iExpr.Values
 
         protected override IEnumerable<CollectionItemValue> _Contents { get => values; }
 
-        public bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
+        public override bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
 
         public override int Count => values.Count;
 
@@ -55,7 +81,7 @@ namespace iExpr.Values
             return this.ToString() == (other as SetValue).ToString();
         }
 
-        public bool Add(IValue item)
+        public override bool Add(IValue item)
         {
             return values.Add(new CollectionItemValue(item));
         }
@@ -65,69 +91,69 @@ namespace iExpr.Values
             return (other.Select(x => (x is CollectionItemValue) ? (CollectionItemValue)x : new CollectionItemValue(x)));
         }
 
-        public void ExceptWith(IEnumerable<IValue> other)
+        public override void ExceptWith(IEnumerable<IValue> other)
         {
             values.ExceptWith(getitems(other));
         }
 
-        public void IntersectWith(IEnumerable<IValue> other)
+        public override void IntersectWith(IEnumerable<IValue> other)
         {
             values.IntersectWith(getitems(other));
         }
 
-        public bool IsProperSubsetOf(IEnumerable<IValue> other)
+        public override bool IsProperSubsetOf(IEnumerable<IValue> other)
         {
             return values.IsProperSubsetOf(getitems(other));
         }
 
-        public bool IsProperSupersetOf(IEnumerable<IValue> other)
+        public override bool IsProperSupersetOf(IEnumerable<IValue> other)
         {
             return values.IsProperSupersetOf(getitems(other));
         }
 
-        public bool IsSubsetOf(IEnumerable<IValue> other)
+        public override bool IsSubsetOf(IEnumerable<IValue> other)
         {
             return values.IsSubsetOf(getitems(other));
         }
 
-        public bool IsSupersetOf(IEnumerable<IValue> other)
+        public override bool IsSupersetOf(IEnumerable<IValue> other)
         {
             return values.IsSupersetOf(getitems(other));
         }
 
-        public bool Overlaps(IEnumerable<IValue> other)
+        public override bool Overlaps(IEnumerable<IValue> other)
         {
             return values.Overlaps(getitems(other));
         }
 
-        public bool SetEquals(IEnumerable<IValue> other)
+        public override bool SetEquals(IEnumerable<IValue> other)
         {
             return values.SetEquals(getitems(other));
         }
 
-        public void SymmetricExceptWith(IEnumerable<IValue> other)
+        public override void SymmetricExceptWith(IEnumerable<IValue> other)
         {
             values.SymmetricExceptWith(getitems(other));
         }
 
-        public void UnionWith(IEnumerable<IValue> other)
+        public override void UnionWith(IEnumerable<IValue> other)
         {
             values.UnionWith(getitems(other));
         }
 
-        public void Clear()
+        public override void Clear()
         {
             values.Clear();
         }
 
-        public bool Contains(IValue item)
+        public override bool Contains(IValue item)
         {
             return values.Contains(item);
         }
 
-        public void CopyTo(IValue[] array, int arrayIndex)
+        public override void CopyTo(IValue[] array, int arrayIndex)
         {
-            throw new Exceptions.UndefinedExecuteException();
+            new HashSet<IValue>((this.values.Select(x => (IValue)x))).CopyTo(array, arrayIndex);
         }
 
         CollectionItemValue GetItemValue(object item)
@@ -137,15 +163,15 @@ namespace iExpr.Values
             return null;
         }
 
-        public bool Remove(IValue item)
+        public override bool Remove(IValue item)
         {
             var id = GetItemValue(item); if (id == null) return true;
             return values.Remove(id);
         }
 
-        void ICollection<IValue>.Add(IValue item)
+        public override bool Equals(IValue other)
         {
-            this.Add(item);
+            return this.ToString() == other.ToString();
         }
     }
 }

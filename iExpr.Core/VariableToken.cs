@@ -1,4 +1,4 @@
-﻿using iExpr.Parser;
+﻿using iExpr.Parsers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,15 +52,16 @@ namespace iExpr
             
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            return Equals(obj as VariableToken);
+            if (other is IValue) return Equals((IValue)other);
+            else return false;
         }
 
-        public override bool Equals(IExpr _other)
+        public override bool Equals(IExpr other)
         {
-            var other = _other as VariableToken;
-            return other != null && other.ToString() == this.ToString();
+            if (other is IValue) return Equals((IValue)other);
+            else return false;
         }
 
         public override int GetHashCode()
@@ -68,6 +69,12 @@ namespace iExpr
             var hashCode = 1895487624;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ID);
             return hashCode;
+        }
+
+        public bool Equals(IValue _other)
+        {
+            var other = _other as VariableToken;
+            return other != null && other.ToString() == this.ToString();
         }
 
         public static bool operator ==(VariableToken node1, VariableToken node2)

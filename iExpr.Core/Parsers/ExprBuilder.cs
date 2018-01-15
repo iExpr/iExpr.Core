@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace iExpr.Parser
+namespace iExpr.Parsers
 {
     /// <summary>
     /// 表达式解析器
@@ -22,13 +22,13 @@ namespace iExpr.Parser
         /// <param name="syms">符号列表</param>
         public ExprBuilder(ParseEnvironment syms)
         {
-            Symbols = syms;
+            Environment = syms;
         }
 
         /// <summary>
         /// 获取或设置符号列表
         /// </summary>
-        public ParseEnvironment Symbols { get; set; }
+        public ParseEnvironment Environment { get; set; }
 
         /// <summary>
         /// 生成符号解析
@@ -89,9 +89,9 @@ namespace iExpr.Parser
                 if (Symbols.IsOperation(ans) == false) return null;// throw new Exception("it's not a opt");
                 return ans;
             }*/
-            var vtc = Symbols.VariableChecker;
-            var btc = Symbols.BasicTokenChecker;
-            var otc = Symbols.OperatorChecker;
+            var vtc = Environment.VariableChecker;
+            var btc = Environment.BasicTokenChecker;
+            var otc = Environment.OperatorChecker;
             (string,SymbolType) nextItem()
             {
                 otc.Clear();btc.Clear();vtc.Clear();
@@ -144,7 +144,7 @@ namespace iExpr.Parser
             {
                 cur++;//跳过第一个@
                 if (cur >= expr.Length) return "";
-                if(Symbols.GetSpecialSymbolType(expr[cur])!= SymbolType.UnionEdge)//@abc 形式
+                if(Environment.GetSpecialSymbolType(expr[cur])!= SymbolType.UnionEdge)//@abc 形式
                 {
                     throw new Exception("except a \" but can't find it.");
                     //return nextVal();
@@ -165,7 +165,7 @@ namespace iExpr.Parser
                             break;
                     }
                     if (left == 0) { cur++; break; }//跳过最后一个]*/
-                    if (Symbols.GetSpecialSymbolType(expr[cur]) == SymbolType.UnionEdge) break;
+                    if (Environment.GetSpecialSymbolType(expr[cur]) == SymbolType.UnionEdge) break;
                     sb.Append(expr[cur]);
                     cur++;
                 }
@@ -175,7 +175,7 @@ namespace iExpr.Parser
 
             while (cur < expr.Length)
             {
-                var type = Symbols.GetSpecialSymbolType(expr[cur]);
+                var type = Environment.GetSpecialSymbolType(expr[cur]);
                 int _l = cur;
                 switch (type)
                 {
@@ -225,11 +225,11 @@ namespace iExpr.Parser
                                     sym.Add(new Symbol(s, SymbolType.BasicValue, _l, cur));
                                     break;
                                 case SymbolType.Variable:
-                                    if (Symbols.Constants?.ContainsKey(s)==true)
+                                    if (Environment.Constants?.ContainsKey(s)==true)
                                     {
                                         sym.Add(new Symbol(s, SymbolType.ConstantValue, _l, cur));
                                     }
-                                    else if (Symbols.Modifiers?.ContainsKey(s)==true)
+                                    else if (Environment.Modifiers?.ContainsKey(s)==true)
                                     {
                                         sym.Add(new Symbol(s, SymbolType.Modifier, _l, cur));
                                     }
@@ -254,56 +254,7 @@ namespace iExpr.Parser
 
         IExpr parseUnionValue(string str)
         {
-            #region old list parse
-            /*
-            if (_isedged(str, "[","]"))
-            {
-                ListValue l = new ListValue();
-                str = str.Substring(1, str.Length - 2);
-                var ls = str.Split(',');
-                if (ls.Length > 0)
-                {
-                    l.Contents = new List<IExpr>();
-                    foreach (var v in ls)
-                    {
-                        l.Contents.Add(GetExpr(v));
-                    }
-                }
-                return ConcreteValueHelper.BuildValue(l);
-            }
-            else if (_isedged(str, "{", "}"))
-            {
-                SetValue l = new SetValue();
-                str = str.Substring(1, str.Length - 2);
-                var ls = str.Split(',');
-                if (ls.Length > 0)
-                {
-                    l.Contents = new HashSet<IExpr>();
-                    foreach (var v in ls)
-                    {
-                        l.Contents.Add(GetExpr(v));
-                    }
-                }
-                return ConcreteValueHelper.BuildValue(l);
-            }
-            else if (_isedged(str, "(", ")"))
-            {
-                str = str.Substring(1, str.Length - 2);
-                var ls = str.Split(',');
-                
-                if (ls.Length > 0)
-                {
-                    List<IExpr> l = new List<IExpr>();
-                    foreach (var v in ls)
-                    {
-                        l.Add(GetExpr(v));
-                    }
-                    return ConcreteValueHelper.BuildValue(new TupleValue(l));
-                }
-                else return ConcreteValueHelper.BuildValue(new TupleValue());
-            }*/
-#endregion
-            return Symbols.GetUnionValue(str);
+            return Environment.GetUnionValue(str);
         }
 
         /// <summary>
@@ -458,7 +409,9 @@ namespace iExpr.Parser
                                             {
                                                 if (l.Count > 1)//括号里有多项（如果只有一项零项就不生成Tuple）,TODO:注意这里
                                                 {
-                                                    val.Push((new TupleValue(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x))), cur));
+                                                    var ls = Environment.GetTupleValue();
+                                                    ls.Reset(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x)));
+                                                    val.Push((ls, cur));
                                                 }
                                                 else
                                                 {
@@ -481,7 +434,12 @@ namespace iExpr.Parser
                                                     flg = true;
                                                 }
                                             }
-                                            if (flg == false) val.Push((new ListValue(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x))), cur));
+                                            if (flg == false)
+                                            {
+                                                var ls = Environment.GetListValue();
+                                                ls.Reset(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x)));
+                                                val.Push((ls, cur));
+                                            }
                                         }
                                         break;
                                     case SymbolType.RightBrace:
@@ -498,7 +456,12 @@ namespace iExpr.Parser
                                                     flg = true;
                                                 }
                                             }
-                                            if (flg == false) val.Push((new SetValue(l.Select(x => x is IValue?(IValue)x:new NativeExprValue(x))), cur));
+                                            if (flg == false)
+                                            {
+                                                var ls = Environment.GetSetValue();
+                                                ls.Reset(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x)));
+                                                val.Push((ls, cur));
+                                            }
                                         }
                                         break;
                                 }
@@ -518,7 +481,7 @@ namespace iExpr.Parser
                             break;
                         case SymbolType.Operation:
                             {
-                                var op = Symbols[s];
+                                var op = Environment[s];
                                 if (op.ArgumentCount == 0)
                                 {
                                     val.Push((new ExprNodeSingleOperation(op, null),cur));
@@ -560,13 +523,13 @@ namespace iExpr.Parser
                             _var(cur, new VariableToken(s));
                             break;
                         case SymbolType.ConstantValue://常量不支持修饰符
-                            val.Push((Symbols.Constants[s], cur));
+                            val.Push((Environment.Constants[s], cur));
                             break;
                         case SymbolType.BasicValue:
-                            val.Push((Symbols.GetBasicValue(s), cur));
+                            val.Push((Environment.GetBasicValue(s), cur));
                             break;
                         case SymbolType.Modifier:
-                            val.Push((Symbols.Modifiers[s], cur));
+                            val.Push((Environment.Modifiers[s], cur));
                             break;
                         case SymbolType.UnionValue:
                             val.Push((parseUnionValue(s), cur));

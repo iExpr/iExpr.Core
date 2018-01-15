@@ -44,14 +44,14 @@ namespace iExpr.Values
         {
             if (Value == null) return "";
             if (Value is IValue) return ((IValue)Value).ToString();
-            if (Value is string)
+            /*if (Value is string)
             {
                 return $"@\"{Value.ToString()}\"";
-            }
+            }*/
             return Value.ToString();
         }
 
-        public bool Equals(IExpr _other)
+        public bool Equals(IValue _other)
         {
             var other = _other as ConcreteValue;
             return other != null && other.ToString() == this.ToString();
@@ -67,6 +67,12 @@ namespace iExpr.Values
         public override bool Equals(object obj)
         {
             if (obj is IExpr) return Equals((IExpr)obj);
+            else return false;
+        }
+
+        public bool Equals(IExpr other)
+        {
+            if (other is IValue) return Equals((IValue)other);
             else return false;
         }
 

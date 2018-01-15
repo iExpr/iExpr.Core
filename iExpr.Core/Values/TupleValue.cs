@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Collections;
+using iExpr.Evaluators;
+using System.Data;
+using iExpr.Helpers;
 
 namespace iExpr.Values
 {
+    public abstract class TupleValueBase : CollectionValue, IIndexableValue
+    {
+        public abstract IExpr Index(FunctionArgument args, EvalContext cal);
+    }
+
     /// <summary>
     /// 元组值
     /// </summary>
-    public class TupleValue : CollectionValue
+    public class TupleValue : TupleValueBase
     {
         /// <summary>
         /// 元组内容
@@ -31,7 +39,16 @@ namespace iExpr.Values
                 Contents[index].Value = value;
             }
         }
-        
+
+        public override IExpr Index(FunctionArgument args, EvalContext cal)
+        {
+            if (args.Indexs?.Length != 1)
+                throw new EvaluateException("The index content is invalid.");
+            var ind = cal.GetValue<int>(cal.Evaluate(args.Indexs[0]));
+            //int ind = ConcreteValueHelper.GetValue<int>(pind);//TODO: Check for null
+            return this[ind];
+        }
+
 
         public override string ToString()
         {
@@ -64,6 +81,21 @@ namespace iExpr.Values
         {
             if (!(other is TupleValue)) return false;
             return _Contents == (other as TupleValue)._Contents;
+        }
+
+        public override bool Contains(IValue item)
+        {
+            //object it = cal.GetValue(item);
+            foreach(var v in Contents)
+            {
+                if (v.Equals(item)) return true;
+            }
+            return false;
+        }
+
+        public override bool Equals(IValue other)
+        {
+            return this.ToString() == other.ToString();
         }
     }
 }
