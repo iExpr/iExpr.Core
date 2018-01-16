@@ -163,5 +163,14 @@ namespace iExpr.Exprs.Core
                 OperationHelper.AssertArgsNumber(1, args);
                 return new ConcreteValue(cal.HasVariable((args[0] as VariableToken).ID));
             },1,true);
+
+        public static PreFunctionValue Class { get; } = new PreFunctionValue(
+                "class",
+                (FunctionArgument _args, EvalContext cal) =>
+                {
+                    return new ClassValue();
+                },
+                -1
+                );
     }
 }

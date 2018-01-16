@@ -16,10 +16,10 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>sddl_iExprCore.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <Version>0.5.2.7</Version>
-    <AssemblyVersion>0.5.2.7</AssemblyVersion>
+    <Version>0.5.2.13</Version>
+    <AssemblyVersion>0.5.2.9</AssemblyVersion>
     <PackageIconUrl>https://github.com/iExpr/iExpr.Core/blob/master/resources/images/core.png?raw=true</PackageIconUrl>
-    <FileVersion>0.5.2.7</FileVersion>
+    <FileVersion>0.5.2.9</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

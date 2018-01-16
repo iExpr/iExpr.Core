@@ -28,16 +28,14 @@ namespace iExpr
         public Association Association { get; private set; }
         public double Priority { get; private set; }
         public uint[] SelfCalculate { get; private set; }
-        public bool CanPreparameter { get; private set; }
 
         public Func<IExpr[], EvalContext, IExpr> EvaluateFunc { get; private set; }
         public Func<IExpr[], string> ToStringFunc { get; private set; }
 
-        public Operator(string keyWord, Func<IExpr[], EvalContext, IExpr> calculate, Func<IExpr[], string> toexprString = null, double priority = 0, Association association = Association.Left, int quantityNumber = -1, uint[] selfCalculate = null, bool canprearg = false)
+        public Operator(string keyWord, Func<IExpr[], EvalContext, IExpr> calculate, Func<IExpr[], string> toexprString = null, double priority = 0, Association association = Association.Left, int quantityNumber = -1, uint[] selfCalculate = null)
         {
             Keyword = keyWord;
             EvaluateFunc = calculate;
-            CanPreparameter = canprearg;
             if (toexprString != null)
             {
                 ToStringFunc = toexprString;

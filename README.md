@@ -5,10 +5,10 @@
 
 ![](https://img.shields.io/badge/framework-.netstandard2.0-blue.svg)
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
-![](https://img.shields.io/badge/alpha-v0.5.2.7-blue.svg)
+![](https://img.shields.io/badge/alpha-v0.5.2.13-blue.svg)
 [![](https://img.shields.io/badge/nuget-v0.5.2.7-brightgreen.svg)](https://www.nuget.org/packages/iExpr.Core/0.5.2.7)
 [![](https://img.shields.io/badge/wiki-v0.5.2.7-blue.svg)](https://github.com/iExpr/iExpr.Core/wiki)
-![](http://progressed.io/bar/80?title=done)
+![](http://progressed.io/bar/90?title=done)
 
 + Author: Stardust D.L.
 + Version: 0.5.2
@@ -52,8 +52,6 @@ PM> Install-Package iExpr.Core -Version 0.5.2.7
     + For a complex one, you can see [ExprSharp](https://github.com/ExprSharp)
 
 # Note
-
-A known bug: negetive operator will lead to a parser exception. Please use `0-a`, not `-a`.
 
 # Links
 

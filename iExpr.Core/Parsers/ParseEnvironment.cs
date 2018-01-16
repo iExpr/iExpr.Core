@@ -129,6 +129,11 @@ namespace iExpr.Parsers
         {
             this.Add(new ConstantToken(func.Keyword, func));
         }
+
+        public void AddClassValue(PreClassValue cla)
+        {
+            this.Add(new ConstantToken(cla.ClassName, cla));
+        }
     }
 
     /// <summary>

@@ -257,6 +257,27 @@ namespace iExpr.Parsers
             return Environment.GetUnionValue(str);
         }
 
+        struct Segment
+        {
+            public int Left { get; set; }
+
+            public int Right { get; set; }
+
+            public Segment(int l,int r)
+            {
+                Left = l;Right = r;
+            }
+
+            public Segment(int l):this(l,l)
+            {
+            }
+
+            public static Segment Combine(Segment a,Segment b)
+            {
+                return new Segment(Math.Min(a.Left, b.Left), Math.Max(a.Right, b.Right));
+            }
+        }
+
         /// <summary>
         /// 解析表达式
         /// </summary>
@@ -273,7 +294,7 @@ namespace iExpr.Parsers
                 expr = $"({expr})";
 
                 var syms = GetSymbols(expr).Where(x=>x.Type!= SymbolType.Space).ToArray();//剔除空白，防止影响相邻的判断
-                Stack<(IExpr val, int id)> val = new Stack<(IExpr, int)>();
+                Stack<(IExpr val, Segment s)> val = new Stack<(IExpr, Segment)>();
                 Stack<(IOperation val, int id)> opt = new Stack<(IOperation, int)>();
                 Stack<(int,int)> leftbrs = new Stack<(int,int)>();
                 Stack<int> edges = new Stack<int>();
@@ -300,27 +321,46 @@ namespace iExpr.Parsers
                     }
                 }
 
-                void _pop(int cur)
+                void _pop()
                 {
-                    var last = opt.Pop().val;
+                    var last = opt.Pop();
                     var p = edges.Peek();
-                    IExpr l=null, r=null;
-                    if (last.ArgumentCount != 1 && last.ArgumentCount != 2) throw new UndefinedExecuteException();
+                    if (last.val.ArgumentCount != 1 && last.val.ArgumentCount != 2) throw new UndefinedExecuteException();
                     //TODO: Support ovvri.. functions
-                    if (last.ArgumentCount == 1)//like !x but not x!
+                    if (last.val.ArgumentCount == 1)//like !x but not x!
                     {
-                        if(last.Association == Association.Left) throw new UndefinedExecuteException();
-                        if (val.Peek().id > p) l = val.Pop().val;
-                        if (l == null) throw new UndefinedExecuteException();
-                        val.Push((new ExprNodeSingleOperation(last, l), cur));
+                        if(last.val.Association == Association.Left) throw new UndefinedExecuteException();
+                        var k = val.Peek().s.Left;
+                        if (k > p && k==last.id+1)//在运算符右侧
+                        {
+                            var r = val.Pop();
+                            val.Push((new ExprNodeSingleOperation(last.val, r.val), new Segment(last.id,r.s.Right)));
+                        }
+                        else throw new UndefinedExecuteException();
+                        
                     }
-                    else if (last.ArgumentCount == 2)
+                    else if (last.val.ArgumentCount == 2)
                     {
-                        if (val.Peek().id > p) r = val.Pop().val;
-                        if (val.Peek().id > p) l = val.Pop().val;
-                        if (l == null) throw new UndefinedExecuteException();
-                        if (r == null) throw new UndefinedExecuteException();
-                        val.Push((new ExprNodeBinaryOperation(last, l, r), cur));
+                        var kl = val.Peek().s.Left;
+                        if (kl > p && kl==last.id+1)
+                        {
+                            var r = val.Pop();
+                            if (val.Count == 0)
+                            {
+                                val.Push((new ExprNodeSingleOperation(last.val, r.val), new Segment(last.id, r.s.Right)));
+                            }
+                            else if (val.Peek().s.Left > p && val.Peek().s.Right == last.id - 1)
+                                {
+                                    var l = val.Pop();
+                                    val.Push((new ExprNodeBinaryOperation(last.val, l.val, r.val), Segment.Combine(l.s, r.s)));
+                                }
+                            else
+                            {
+                                val.Push((new ExprNodeSingleOperation(last.val, r.val), new Segment(last.id, r.s.Right)));
+                            }
+                        }
+                        else throw new UndefinedExecuteException();
+                        
                     }
                     else throw new UndefinedExecuteException();
                 }
@@ -329,16 +369,18 @@ namespace iExpr.Parsers
                 {
                     var p = edges.Peek();
                     List<ModifierToken> ms = new List<ModifierToken>();
+                    int ik = cur;
                     while(val.Count>0)
                     {
                         (var e, var id) = val.Peek();
-                        if (!(id > p)) break;
                         if (!(e is ModifierToken)) break;
+                        if (!(id.Right!=ik-1)) break;
                         ms.Add(e as ModifierToken);
+                        ik--;
                         val.Pop();
                     }
                     v.Attached = ms.ToArray();
-                    val.Push((v, cur));
+                    val.Push((v, new Segment(ik, cur)));
                 }
 
                 void package(int cur)
@@ -348,12 +390,13 @@ namespace iExpr.Parsers
                     {
                         while (opt.Count > 0 && opt.Peek().id > p)
                         {
-                            _pop(cur - 1);//TODO: Not the cur but cur-1,The id are same!
+                            _pop();
                         }
                     }
-                    if (val.Count == 0 || val.Peek().id < p)
+                    if (val.Count == 0 || val.Peek().s.Left < p)
                     {//空括号
-                        val.Push((BuiltinValues.Null, cur - 1));
+                        throw new ParseException("No elements.");
+                        //val.Push((BuiltinValues.Null, cur - 1));
                     }
                 }
 
@@ -383,7 +426,7 @@ namespace iExpr.Parsers
                                 package(cur);//最后一段打包
 
                                 List<IExpr> l = new List<IExpr>();
-                                while (val.Count > 0 && val.Peek().id >= p.Item2)
+                                while (val.Count > 0 && val.Peek().s.Left >= p.Item2)
                                 {
                                     l.Add(val.Pop().val);
                                 }
@@ -396,12 +439,12 @@ namespace iExpr.Parsers
                                             if (val.Count > 0)//fid(x,x,x)
                                             {
                                                 (var ex, var id) = val.Peek();
-                                                if (id == p.Item2 - 1)//函数情况下展开
+                                                if (id.Right == p.Item2 - 1)//函数情况下展开
                                                 {
                                                     val.Pop();
                                                     //ExprFunction ef = new ExprFunction(ex);
                                                     ExprNode en = new ExprNodeCall(ex, l.ToArray());
-                                                    val.Push((en, cur));
+                                                    val.Push((en, new Segment(id.Left,cur)));
                                                     flg = true;
                                                 }
                                             }
@@ -411,11 +454,11 @@ namespace iExpr.Parsers
                                                 {
                                                     var ls = Environment.GetTupleValue();
                                                     ls.Reset(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x)));
-                                                    val.Push((ls, cur));
+                                                    val.Push((ls, new Segment(p.Item2,cur)));
                                                 }
                                                 else
                                                 {
-                                                    if (l.Count == 1) val.Push((l[0], cur));
+                                                    if (l.Count == 1) val.Push((l[0], new Segment(p.Item2, cur)));
                                                 }
                                             }
                                         }
@@ -425,12 +468,12 @@ namespace iExpr.Parsers
                                             if (val.Count > 0)//fid[x,x,x]
                                             {
                                                 (var ex, var id) = val.Peek();
-                                                if (id == p.Item2 - 1)//函数情况下展开
+                                                if (id.Right == p.Item2 - 1)//函数情况下展开
                                                 {
                                                     val.Pop();
                                                     //ExprFunction ef = new ExprFunction(ex);
                                                     ExprNode en = new ExprNodeIndex(ex, l.ToArray());
-                                                    val.Push((en, cur));
+                                                    val.Push((en, new Segment(id.Left, cur)));
                                                     flg = true;
                                                 }
                                             }
@@ -438,7 +481,7 @@ namespace iExpr.Parsers
                                             {
                                                 var ls = Environment.GetListValue();
                                                 ls.Reset(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x)));
-                                                val.Push((ls, cur));
+                                                val.Push((ls, new Segment(p.Item2, cur)));
                                             }
                                         }
                                         break;
@@ -447,12 +490,12 @@ namespace iExpr.Parsers
                                             if (val.Count > 0)//fid[x,x,x]
                                             {
                                                 (var ex, var id) = val.Peek();
-                                                if (id == p.Item2 - 1)//函数情况下展开
+                                                if (id.Right == p.Item2 - 1)//函数情况下展开
                                                 {
                                                     val.Pop();
                                                     //ExprFunction ef = new ExprFunction(ex);
                                                     ExprNode en = new ExprNodeContent(ex, l.ToArray());
-                                                    val.Push((en, cur));
+                                                    val.Push((en, new Segment(id.Left, cur)));
                                                     flg = true;
                                                 }
                                             }
@@ -460,7 +503,7 @@ namespace iExpr.Parsers
                                             {
                                                 var ls = Environment.GetSetValue();
                                                 ls.Reset(l.Select(x => x is IValue ? (IValue)x : new NativeExprValue(x)));
-                                                val.Push((ls, cur));
+                                                val.Push((ls, new Segment(p.Item2, cur)));
                                             }
                                         }
                                         break;
@@ -470,13 +513,13 @@ namespace iExpr.Parsers
                             }
                             break;
                         case SymbolType.Access:
-                            if(val.Count == 0 || val.Peek().id<edges.Peek()) throw new ParseException("No pre variable for access expr.");
+                            if(val.Count == 0 || val.Peek().s.Right!=cur-1) throw new ParseException("No pre variable for access expr.");
                             if (cur + 1 >= syms.Length) throw new ParseException("No suffix variable for access expr.");
                             { 
-                                cur++;var l = val.Pop().val;
+                                cur++;var l = val.Pop();
                                 var t = syms[cur];
                                 if (t.Type != SymbolType.Variable) throw new ParseException("The access expr is only used by variable.");
-                                val.Push((new ExprNodeAccess(l, new VariableToken(t)), cur));
+                                val.Push((new ExprNodeAccess(l.val, new VariableToken(t)), new Segment(l.s.Left,cur)));
                             }
                             break;
                         case SymbolType.Operation:
@@ -484,16 +527,17 @@ namespace iExpr.Parsers
                                 var op = Environment[s];
                                 if (op.ArgumentCount == 0)
                                 {
-                                    val.Push((new ExprNodeSingleOperation(op, null),cur));
+                                    val.Push((new ExprNodeSingleOperation(op, null),new Segment(cur)));
                                 }
                                 else
                                 {
                                     if (opt.Count == 0)
                                     {
-                                        if (op.ArgumentCount == 1 && op.Association == Association.Left)
+                                        if (op.ArgumentCount == 1 && op.Association == Association.Left)//x!
                                         {
-                                            if (val.Count == 0) throw new ParseException("No left expr.");
-                                            val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                            if (val.Count == 0 || val.Peek().s.Right!=cur-1) throw new ParseException("No left expr.");
+                                            var vl = val.Pop();
+                                            val.Push((new ExprNodeSingleOperation(op,vl.val), new Segment(vl.s.Left,cur)));
                                         }
                                         else opt.Push((op, cur));
                                     }
@@ -505,14 +549,15 @@ namespace iExpr.Parsers
                                             && (op.Priority > pp.val.Priority
                                             || op.Priority == pp.val.Priority && pp.val.Association == Association.Left))
                                         {
-                                            _pop(cur - 1);
+                                            _pop();
                                             if (opt.Count == 0) break;
                                             pp = opt.Peek();
                                         }
                                         if (op.ArgumentCount == 1 && op.Association == Association.Left)
                                         {
-                                            if (val.Count == 0) throw new ParseException("No left expr.");
-                                            val.Push((new ExprNodeSingleOperation(op, val.Pop().val), cur));
+                                            if (val.Count == 0 || val.Peek().s.Right != cur - 1) throw new ParseException("No left expr.");
+                                            var vl = val.Pop();
+                                            val.Push((new ExprNodeSingleOperation(op, vl.val), new Segment(vl.s.Left, cur)));
                                         }
                                         else opt.Push((op, cur));
                                     }
@@ -523,16 +568,16 @@ namespace iExpr.Parsers
                             _var(cur, new VariableToken(s));
                             break;
                         case SymbolType.ConstantValue://常量不支持修饰符
-                            val.Push((Environment.Constants[s], cur));
+                            val.Push((Environment.Constants[s], new Segment( cur)));
                             break;
                         case SymbolType.BasicValue:
-                            val.Push((Environment.GetBasicValue(s), cur));
+                            val.Push((Environment.GetBasicValue(s), new Segment(cur)));
                             break;
                         case SymbolType.Modifier:
-                            val.Push((Environment.Modifiers[s], cur));
+                            val.Push((Environment.Modifiers[s], new Segment(cur)));
                             break;
                         case SymbolType.UnionValue:
-                            val.Push((parseUnionValue(s), cur));
+                            val.Push((parseUnionValue(s), new Segment(cur)));
                             break;
                     }
                 }

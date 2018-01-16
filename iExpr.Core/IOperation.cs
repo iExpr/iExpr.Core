@@ -79,8 +79,6 @@ namespace iExpr
         /// </summary>
         Func<IExpr[], EvalContext, IExpr> EvaluateFunc { get; }
 
-        bool CanPreparameter { get; }
-
         /// <summary>
         /// 转换表达式字符串实现
         /// </summary>

@@ -10,7 +10,7 @@ namespace iExpr.Helpers
     /// <summary>
     /// 提供对操作符构建的相关支持
     /// </summary>
-    public class OperationHelper
+    public static class OperationHelper
     {
         public static bool AssertArgsNumber(int n,params IExpr[] args)
         {
