@@ -18,14 +18,28 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                List<IValue> ls = new List<IValue>();
+                ListValue ls = new ListValue();
 
                 foreach (var v in args)
                 {
                     switch (v)
                     {
-                        case CollectionValue c:
-                            ls.AddRange(c);
+                        case IEnumerableValue c:
+                            foreach(var x in c)
+                            {
+                                ls.Add(x);
+                            }
+                            break;
+                        case IHasValue c:
+                            if (c.Value is IEnumerableValue)
+                            {
+                                foreach (var x in (c.Value as IEnumerableValue))
+                                {
+                                    ls.Add(x);
+                                }
+                            }
+                            else if (c is IValue) ls.Add((IValue)c);
+                            else throw new NotValueException();
                             break;
                         case IValue c:
                             ls.Add(c);
@@ -34,7 +48,7 @@ namespace iExpr.Exprs.Core
                             throw new NotValueException();
                     }
                 }
-                return new ListValue(ls);
+                return ls;
             });
 
         /// <summary>
@@ -45,14 +59,28 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                List<IValue> ls = new List<IValue>();
+                ListValue ls = new ListValue();
 
                 foreach (var v in args)
                 {
                     switch (v)
                     {
-                        case CollectionValue c:
-                            ls.AddRange(c);
+                        case IEnumerableValue c:
+                            foreach (var x in c)
+                            {
+                                ls.Add(x);
+                            }
+                            break;
+                        case IHasValue c:
+                            if (c.Value is IEnumerableValue)
+                            {
+                                foreach (var x in (c.Value as IEnumerableValue))
+                                {
+                                    ls.Add(x);
+                                }
+                            }
+                            else if (c is IValue) ls.Add((IValue)c);
+                            else throw new NotValueException();
                             break;
                         case IValue c:
                             ls.Add(c);
@@ -72,14 +100,28 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                List<IValue> ls = new List<IValue>();
+                ListValue ls = new ListValue();
 
                 foreach (var v in args)
                 {
                     switch (v)
                     {
-                        case CollectionValue c:
-                            ls.AddRange(c);
+                        case IEnumerableValue c:
+                            foreach (var x in c)
+                            {
+                                ls.Add(x);
+                            }
+                            break;
+                        case IHasValue c:
+                            if (c.Value is IEnumerableValue)
+                            {
+                                foreach (var x in (c.Value as IEnumerableValue))
+                                {
+                                    ls.Add(x);
+                                }
+                            }
+                            else if(c is IValue) ls.Add((IValue)c);
+                            else throw new NotValueException();
                             break;
                         case IValue c:
                             ls.Add(c);
@@ -104,8 +146,15 @@ namespace iExpr.Exprs.Core
                 {
                     switch (v)
                     {
-                        case CollectionValue c:
+                        case ICountableValue c:
                             cnt += c.Count;
+                            break;
+                        case IHasValue c:
+                            if (c.Value is ICountableValue)
+                            {
+                                cnt += (c.Value as ICountableValue).Count;
+                            }
+                            else cnt++;
                             break;
                         default:
                             cnt++;
@@ -168,9 +217,43 @@ namespace iExpr.Exprs.Core
                 "class",
                 (FunctionArgument _args, EvalContext cal) =>
                 {
-                    return new ClassValue();
-                },
-                -1
+                    var res= new ClassValue(cal);
+                    var children = _args.Contents;
+                    foreach (var x in children)
+                    {
+                        cal.Evaluate(x);
+                    }
+                    return res;
+                }
+                );
+
+        public static PreFunctionValue Iterator { get; } = new PreFunctionValue(
+                "iter",
+                (FunctionArgument _args, EvalContext cal) =>
+                {
+                    if (_args.Arguments != null && _args.Arguments.Length>0)
+                    {
+                        var args = _args.Arguments;
+                        OperationHelper.AssertArgsNumberThrowIf(1, args);
+                        var v = cal.GetValue<IEnumerable<IValue>>(args[0]);
+                        return new PreEnumeratorValue(v);
+                    }
+                    else
+                    {
+                        var res = new EnumeratorValue( new ConcreteValue(null), new ConcreteValue(null),cal);
+                        var children = _args.Contents;
+                        
+                        foreach (var x in children)
+                        {
+                            cal.Evaluate(x);
+                        }
+                        var next = cal.GetValue<FunctionValue>(res.Next);
+                        //使Next无法被修改
+                        res.Next = ClassValueBuilder.BuildFunction(
+                           (x, y) => next.Call(x, cal), "next",0);
+                        return res;
+                    }
+                },1
                 );
     }
 }

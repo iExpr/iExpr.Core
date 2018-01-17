@@ -7,5 +7,7 @@ namespace iExpr.Values
     public static class BuiltinValues
     {
         public static readonly IValue Null = new ReadOnlyConcreteValue(null);
+
+        public const string THIS = "this";
     }
 }

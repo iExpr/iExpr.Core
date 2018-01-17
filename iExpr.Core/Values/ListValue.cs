@@ -145,7 +145,7 @@ namespace iExpr.Values
 
         public override bool Equals(IValue other)
         {
-            return this.ToString() == other.ToString();
+            return Equals((IExpr)other);//this.ToString() == other.ToString();
         }
     }
 }

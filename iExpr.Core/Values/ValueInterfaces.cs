@@ -8,4 +8,13 @@ namespace iExpr.Values
     {
         bool Contains(IValue item);
     }
+
+    public interface IEnumerableValue : IValue, IEnumerable<IValue>
+    {
+    }
+
+    public interface ICountableValue : IValue
+    {
+        int Count { get; }
+    }
 }

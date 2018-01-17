@@ -7,7 +7,7 @@ namespace iExpr.Values
     /// <summary>
     /// 具体值
     /// </summary>
-    public class ConcreteValue : IValue
+    public class ConcreteValue : IValue, IHasValue
     {
         /// <summary>
         /// 判断是否是常量值
@@ -44,10 +44,10 @@ namespace iExpr.Values
         {
             if (Value == null) return "";
             if (Value is IValue) return ((IValue)Value).ToString();
-            /*if (Value is string)
+            if (Value is string)
             {
-                return $"@\"{Value.ToString()}\"";
-            }*/
+                return $"\"{Value.ToString()}\"";
+            }
             return Value.ToString();
         }
 

@@ -113,29 +113,6 @@ namespace iExpr.Parsers
         }
     }
 
-    public class ConstantList : Dictionary<string, ConstantToken>
-    {
-        //Dictionary<string, ConstantToken> sid = new Dictionary<string, ConstantToken>();
-
-        public void Add(params ConstantToken[] val)
-        {
-            foreach (var v in val)
-            {
-                this.Add(v.ID, v);
-            }
-        }
-
-        public void AddFunction(PreFunctionValue func)
-        {
-            this.Add(new ConstantToken(func.Keyword, func));
-        }
-
-        public void AddClassValue(PreClassValue cla)
-        {
-            this.Add(new ConstantToken(cla.ClassName, cla));
-        }
-    }
-
     /// <summary>
     /// 环境提供者
     /// </summary>

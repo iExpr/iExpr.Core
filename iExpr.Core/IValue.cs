@@ -16,6 +16,14 @@ namespace iExpr
         bool IsConstant { get; }
     }
 
+    public interface IHasValue
+    {
+        /// <summary>
+        /// 判断是否为常量值
+        /// </summary>
+        object Value { get; }
+    }
+
     public interface ICallableValue : IValue
     {
         bool IsSelfCalculate { get; }

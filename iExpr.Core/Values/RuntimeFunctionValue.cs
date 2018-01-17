@@ -12,7 +12,7 @@ namespace iExpr.Values
 
         private static IExpr EvaluateExprValue(RuntimeFunctionValue func, FunctionArgument args, EvalContext calculator)
         {
-            if (func.ArgumentCount == 0)
+            if (func.ArgumentCount == 0 || args==null || args.Arguments==null || args.Arguments.Length==0)
             {
                 return calculator.Evaluate(func.Expr);
             }
@@ -50,7 +50,7 @@ namespace iExpr.Values
 
         public override string ToString()//TODO: 注意这里实现不同，不是()=>()实现
         {
-            return Expr?.ToString();
+            return $"<function value with arguments {String.Join(",",VariableNames)}>";
         }
     }
 }

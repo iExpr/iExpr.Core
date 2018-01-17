@@ -14,6 +14,7 @@ namespace iExpr.Helpers
     {
         public static bool AssertArgsNumber(int n,params IExpr[] args)
         {
+            if (args == null) return 0 == n;
             return args.Length == n;
         }
 
@@ -72,13 +73,6 @@ namespace iExpr.Helpers
             if (AssertCertainValue<T>(val) == false) throw new NotValueException();
         }
 
-        private static  object GetValue(ConcreteValue exp)
-        {
-            if (exp == null) return null;
-            var v = exp;
-            return v.Value;
-        }
-
         /// <summary>
         /// 获取具体值的值
         /// </summary>
@@ -86,7 +80,6 @@ namespace iExpr.Helpers
         /// <returns></returns>
         public static object GetValue(params IExpr[] val)
         {
-
             return val.Select((IExpr e) => {
                 return GetValue(e);
             }).ToArray();
@@ -99,14 +92,7 @@ namespace iExpr.Helpers
         /// <returns></returns>
         public static object GetValue(IExpr e)
         {
-            if (e is ConcreteValue) return GetValue((ConcreteValue)e);
-            else if (e is ConstantToken)
-            {
-                var t = e as ConstantToken;
-                if (t.Value is ConcreteValue)
-                    return GetValue((ConcreteValue)t.Value);
-                else return t.Value;
-            }
+            if (e is IHasValue) return ((e as IHasValue).Value);
             return e;
         }
 

@@ -395,7 +395,7 @@ namespace iExpr.Parsers
                     }
                     if (val.Count == 0 || val.Peek().s.Left < p)
                     {//空括号
-                        throw new ParseException("No elements.");
+                        //throw new ParseException("No elements.");这样会导致无参函数调用失败
                         //val.Push((BuiltinValues.Null, cur - 1));
                     }
                 }

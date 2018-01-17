@@ -7,9 +7,11 @@ using System.Text;
 
 namespace iExpr.Values
 {
-    public sealed class CollectionItemValue : ConcreteValue
+    public class CollectionItemValue : ConcreteValue
     {
         public override bool IsConstant => base.IsConstant;
+
+        public bool IsReadOnly { get; protected set; } = false;
 
         public override object Value
         {
@@ -19,6 +21,7 @@ namespace iExpr.Values
             }
             set
             {
+                if(IsReadOnly) throw new Exceptions.EvaluateException("Can't change the read-only value");
                 object v = null;
                 if (value is IExpr) v = OperationHelper.GetValue((IExpr)value);
                 else v = value;
@@ -30,10 +33,16 @@ namespace iExpr.Values
         public CollectionItemValue(object val)
         {
             Value = val;
+            if (val is ReadOnlyConcreteValue) IsReadOnly = true;
+        }
+
+        public CollectionItemValue(object val, bool isreadonly) : this(val)
+        {
+            IsReadOnly = isreadonly;
         }
     }
 
-    public abstract class CollectionValue: IContainsValue,IEnumerable<CollectionItemValue>, IEnumerable<IValue>
+    public abstract class CollectionValue: IContainsValue, ICountableValue, IEnumerableValue, IEnumerable<CollectionItemValue>
     {
         protected abstract IEnumerable<CollectionItemValue> _Contents { get; }
 
@@ -52,7 +61,7 @@ namespace iExpr.Values
             get;
         }
 
-        public bool IsConstant
+        public virtual bool IsConstant
         {
             get
             {

@@ -31,7 +31,7 @@ namespace iExpr.Values
 
         public override string ToString()
         {
-            return Keyword;
+            return $"<function value named {Keyword}>";
         }
     }
 }

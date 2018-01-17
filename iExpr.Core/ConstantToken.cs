@@ -1,14 +1,17 @@
-﻿using System;
+﻿using iExpr.Values;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace iExpr
 {
-    public class ConstantToken : VariableToken
+    public class ConstantToken : VariableToken, IHasValue
     {
         public override bool IsConstant => true;
 
         public IValue Value { get; protected set; }
+
+        object IHasValue.Value => Value is ConcreteValue?(Value as ConcreteValue).Value:Value;
 
         public ConstantToken(string id, IValue val, ModifierToken attached0, params ModifierToken[] attached) : this(id,val)
         {
@@ -56,6 +59,11 @@ namespace iExpr
         public static bool operator !=(ConstantToken node1, ConstantToken node2)
         {
             return !(node1 == node2);
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 }

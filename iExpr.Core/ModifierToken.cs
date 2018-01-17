@@ -49,5 +49,10 @@ namespace iExpr
         {
             return !(token1 == token2);
         }
+
+        public override string ToString()
+        {
+            return Content;
+        }
     }
 }

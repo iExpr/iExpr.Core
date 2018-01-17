@@ -26,5 +26,10 @@ namespace iExpr.Values
         {
             Expr = val;
         }
+
+        public override string ToString()
+        {
+            return $"<native expression {Expr?.ToString()}>";
+        }
     }
 }
