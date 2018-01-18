@@ -16,10 +16,11 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>StardustDL-Key.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
-    <Version>0.5.3.6</Version>
+    <Version>0.5.3.8</Version>
     <AssemblyVersion>0.5.3.0</AssemblyVersion>
     <PackageIconUrl>https://github.com/iExpr/iExpr.Core/blob/master/resources/images/core.png?raw=true</PackageIconUrl>
     <FileVersion>0.5.3.0</FileVersion>
+    <PackageTags>Expression,Parser,Evaluator</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

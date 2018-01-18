@@ -38,14 +38,15 @@ namespace iExpr.Exprs.Core
                 OperationHelper.AssertCertainValueThrowIf(Minus,args);
                 if (args.Length == 2)
                 {
-                    var ov = cal.GetValue<ISubtractive>(args);
-                    var res = ov[0].Subtract(ov[1]);
+                    var ov = cal.GetValue<ISubtractive>(args[0]);
+                    var or = OperationHelper.GetValue(args[1]);
+                    var res = ov.Subtract(or);
                     return res is IExpr ? (IExpr)res : new ConcreteValue(res);
                 }
                 else if (args.Length == 1)
                 {
-                    var ov = cal.GetValue<ISubtractive>(args);
-                    var res = ov[0].Negtive();
+                    var ov = cal.GetValue<ISubtractive>(args[0]);
+                    var res = ov.Negtive();
                     return res is IExpr ? (IExpr)res : new ConcreteValue(res);
                 }
                 else ExceptionHelper.RaiseWrongArgsNumber(Minus, 2, args.Length);
@@ -68,8 +69,9 @@ namespace iExpr.Exprs.Core
             {
                 OperationHelper.AssertArgsNumberThrowIf(Multiply, 2, args);
                 OperationHelper.AssertCertainValueThrowIf(Multiply,args);
-                var ov = cal.GetValue<IMultiplicable>(args);
-                var res = ov[0].Multiply(ov[1]);
+                var ov = cal.GetValue<IMultiplicable>(args[0]);
+                var or = OperationHelper.GetValue(args[1]);
+                var res = ov.Multiply(or);
                 return res is IExpr ? (IExpr)res : new ConcreteValue(res);
             },
             null,
@@ -86,8 +88,9 @@ namespace iExpr.Exprs.Core
             {
                 OperationHelper.AssertArgsNumberThrowIf(Divide,2, args);
                 OperationHelper.AssertCertainValueThrowIf(Divide, args);
-                var ov = cal.GetValue<IDivisible>(args);
-                var res = ov[0].Divide(ov[1]);
+                var ov = cal.GetValue<IDivisible>(args[0]);
+                var or = OperationHelper.GetValue(args[1]);
+                var res = ov.Divide(or);
                 return res is IExpr ? (IExpr)res : new ConcreteValue(res);
             },
             null,
@@ -104,8 +107,9 @@ namespace iExpr.Exprs.Core
            {
                OperationHelper.AssertArgsNumberThrowIf(Mod,2, args);
                OperationHelper.AssertCertainValueThrowIf(Mod, args);
-               var ov = cal.GetValue<IMouldable>(args);
-               var res = ov[0].Mod(ov[1]);
+               var ov = cal.GetValue<IMouldable>(args[0]);
+               var or = OperationHelper.GetValue(args[1]);
+               var res = ov.Mod(or);
                return res is IExpr ? (IExpr)res : new ConcreteValue(res);
            },
            null,
@@ -122,8 +126,9 @@ namespace iExpr.Exprs.Core
             {
                 OperationHelper.AssertArgsNumberThrowIf(Pow,2, args);
                 OperationHelper.AssertCertainValueThrowIf(Pow, args);
-                var ov = cal.GetValue<IPowerable>(args);
-                var res = ov[0].Pow(ov[1]);
+                var ov = cal.GetValue<IPowerable>(args[0]);
+                var or = OperationHelper.GetValue(args[1]);
+                var res = ov.Pow(or);
                 return res is IExpr ? (IExpr)res : new ConcreteValue(res);
             },
             null,

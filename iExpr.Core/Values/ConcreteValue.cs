@@ -46,7 +46,7 @@ namespace iExpr.Values
             if (Value is IValue) return ((IValue)Value).ToString();
             if (Value is string)
             {
-                return $"\"{Value.ToString()}\"";
+                return $"{Value.ToString()}";
             }
             return Value.ToString();
         }

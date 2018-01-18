@@ -107,6 +107,7 @@ namespace iExpr.Helpers
             if(pa.SelfToString)pc.ToStringFunc = obj.ToString;
             foreach (var v in type.GetMethods())
             {
+                if (v.IsStatic == true) continue;
                 if (!Attribute.IsDefined(v, typeof(ClassMethodAttribute))) continue;
                 var am = (ClassMethodAttribute)Attribute.GetCustomAttribute(v, typeof(ClassMethodAttribute));
                 var f = new PreFunctionValue(am.Name ?? v.Name, (args, cal) =>
@@ -119,15 +120,19 @@ namespace iExpr.Helpers
             }
             foreach (var v in type.GetFields())
             {
+                if (v.IsStatic == true) continue;
                 if (!Attribute.IsDefined(v, typeof(ClassFieldAttribute))) continue;
                 var am = (ClassFieldAttribute)Attribute.GetCustomAttribute(v, typeof(ClassFieldAttribute));
                 pc.Add(am.Name??v.Name, new CollectionItemValue(v.GetValue(obj), am.IsReadOnly));
             }
             foreach (var v in type.GetProperties())
             {
+                if (v.CanRead == false) continue;
+                var getm = v.GetMethod;
+                if (getm.IsStatic == true) continue;
                 if (!Attribute.IsDefined(v, typeof(ClassFieldAttribute))) continue;
                 var am = (ClassFieldAttribute)Attribute.GetCustomAttribute(v, typeof(ClassFieldAttribute));
-                pc.Add(am.Name ?? v.Name, new CollectionItemValue(v.GetValue(obj), am.IsReadOnly));
+                pc.Add(am.Name ?? v.Name, new CollectionItemValue(getm.Invoke(obj,null), am.IsReadOnly));
             }
 
             return pc;
