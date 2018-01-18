@@ -22,13 +22,13 @@ namespace iExpr.Values
         /// <summary>
         /// 元组内容
         /// </summary>
-        private CollectionItemValue[] Contents { get; set; }
+        protected CollectionItemValue[] Contents { get; set; }
 
         protected override IEnumerable<CollectionItemValue> _Contents { get => Contents; }
 
         public override int Count => Contents == null ? 0 : Contents.Length;
 
-        public IValue this[int index]
+        public virtual IValue this[int index]
         {
             get
             {
@@ -43,7 +43,7 @@ namespace iExpr.Values
         public override IExpr Index(FunctionArgument args, EvalContext cal)
         {
             if (args.Indexs?.Length != 1)
-                throw new EvaluateException("The index content is invalid.");
+                ExceptionHelper.RaiseIndexFailed(this, args);
             var ind = cal.GetValue<int>(cal.Evaluate(args.Indexs[0]));
             //int ind = ConcreteValueHelper.GetValue<int>(pind);//TODO: Check for null
             return this[ind];
@@ -91,11 +91,6 @@ namespace iExpr.Values
                 if (v.Equals(item)) return true;
             }
             return false;
-        }
-
-        public override bool Equals(IValue other)
-        {
-            return Equals((IExpr)other);//this.ToString() == other.ToString();
         }
     }
 }

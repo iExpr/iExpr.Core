@@ -12,14 +12,14 @@ namespace iExpr.Values
         /// <summary>
         /// 判断是否是常量值
         /// </summary>
-        public virtual bool IsConstant
+        public virtual bool IsCertain
         {
             get
             {
                 switch (Value)
                 {
                     case IValue val:
-                        return val.IsConstant;
+                        return val.IsCertain;
                     default:
                         return true;
                 }
@@ -51,12 +51,6 @@ namespace iExpr.Values
             return Value.ToString();
         }
 
-        public bool Equals(IValue _other)
-        {
-            var other = _other as ConcreteValue;
-            return other != null && other.ToString() == this.ToString();
-        }
-
         public override int GetHashCode()
         {
             var hashCode = 1895487624;
@@ -70,10 +64,10 @@ namespace iExpr.Values
             else return false;
         }
 
-        public bool Equals(IExpr other)
+        public bool Equals(IExpr _other)
         {
-            if (other is IValue) return Equals((IValue)other);
-            else return false;
+            var other = _other as ConcreteValue;
+            return other != null && other.ToString() == this.ToString();
         }
 
         public static bool operator ==(ConcreteValue node1, ConcreteValue node2)

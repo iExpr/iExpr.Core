@@ -75,7 +75,8 @@ namespace iExpr.Evaluators
                     case NativeExprValue o:
                         return context.Evaluate(o.Expr);
                     default:
-                        throw new EvaluateException("Can't evaluate this kind of expr.");
+                        ExceptionHelper.RaiseInvalidExpressionFailed(this, expr, "Can't evaluate the expr");
+                        return null;
                 }
             }
             catch (OperationCanceledException)
@@ -85,6 +86,14 @@ namespace iExpr.Evaluators
             catch (ExprException ex)
             {
                 throw ex;
+            }
+            catch (IgnoredException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                throw new Exceptions.EvaluateException(this, "Evaluate failed.",ex);
             }
         }
 
@@ -96,14 +105,14 @@ namespace iExpr.Evaluators
         /// <returns></returns>
         public static IExpr EvaluateColletionValue(CollectionValue expr, EvalContext environment)
         {
-            if (expr.IsConstant == true) return expr;
+            if (expr.IsCertain == true) return expr;
             List<IValue> vs = new List<IValue>();
             //var que = from x in ls.Contents select Calculate(x);
             try
             {
                 foreach (var v in (IEnumerable<IValue> )expr)
                 {
-                    if (v.IsConstant) vs.Add(v);
+                    if (v.IsCertain) vs.Add(v);
                     else
                     {
                         var val = environment.Evaluate(v);
@@ -113,7 +122,7 @@ namespace iExpr.Evaluators
                         }
                         else//值是一个表达式
                         {
-                            throw new NotValueException();
+                            ExceptionHelper.RaiseNotValue(expr, v);
                         }
                     }
                 }
@@ -129,8 +138,24 @@ namespace iExpr.Evaluators
 
         public static IExpr EvaluateNodeAccess(ExprNodeAccess expr, EvalContext environment)
         {
-            var func = environment.GetValue<IAccessibleValue>(environment.Evaluate(expr.HeadExpr));
-            return func.Access(expr.Variable.ID);
+            try
+            {
+                var func = environment.GetValue<IAccessibleValue>(environment.Evaluate(expr.HeadExpr));
+                return func.Access(expr.Variable.ID);
+            }
+            catch (ExprException ex)
+            {
+                throw ex;
+            }
+            catch(IgnoredException ex)
+            {
+                throw ex;
+            }
+            catch(Exception ex)
+            {
+                ExceptionHelper.RaiseAccessFailed(expr,expr.Variable.ID,null,ex);
+                return default;
+            }
         }
 
         public static IExpr EvaluateNodeBinaryOperation(ExprNodeBinaryOperation expr, EvalContext environment)
@@ -149,52 +174,100 @@ namespace iExpr.Evaluators
 
         public static IExpr EvaluateNodeCall(ExprNodeCall expr, EvalContext environment)
         {
-            var func = environment.GetValue < ICallableValue > (environment.Evaluate(expr.HeadExpr));
-            //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
-            //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
-            var cs = environment.GetChild();//开辟一个子环境，用于函数的计算，但参数的计算还是在当前层
-            if (func.ArgumentCount == 0) return func.Call(null, cs);
-            if (func.IsSelfCalculate == false)
+            try
             {
-                List<IExpr> args = new List<IExpr>();
-                foreach (var v in expr.Children)
+                var func = environment.GetValue<ICallableValue>(environment.Evaluate(expr.HeadExpr));
+                //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
+                //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
+                var cs = environment.GetChild();//开辟一个子环境，用于函数的计算，但参数的计算还是在当前层
+                if (func.ArgumentCount == 0) return func.Call(null, cs);
+                if (func.IsSelfCalculate == false)
                 {
-                    var val = cs.Evaluate(v);
-                    args.Add(val);
-                    continue;
-                    /*if (val is IValue)
+                    List<IExpr> args = new List<IExpr>();
+                    foreach (var v in expr.Children)
                     {
-                        args.Add((IValue)val);
+                        var val = cs.Evaluate(v);
+                        args.Add(val);
+                        continue;
+                        /*if (val is IValue)
+                        {
+                            args.Add((IValue)val);
+                        }
+                        else//值是一个表达式
+                        {
+                            throw new NotValueException();
+                        }*/
                     }
-                    else//值是一个表达式
-                    {
-                        throw new NotValueException();
-                    }*/
+                    return func.Call(new FunctionArgument(args.ToArray()), cs);
                 }
-                return func.Call(new FunctionArgument(args.ToArray()), cs);
+                else
+                {
+                    return func.Call(new FunctionArgument(expr.Children), cs);
+                }
             }
-            else
+            catch (ExprException ex)
             {
-                return func.Call(new FunctionArgument(expr.Children), cs);
+                throw ex;
+            }
+            catch (IgnoredException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                ExceptionHelper.RaiseCallFailed(expr, null, null, ex);
+                return default;
             }
         }
 
         public static IExpr EvaluateNodeContent(ExprNodeContent expr, EvalContext environment)
         {
-            var func = environment.GetValue<IContentValue>(environment.Evaluate(expr.HeadExpr));
-            //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
-            //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
-            var cs = environment.GetChild();//开辟一个子环境
-            return func.Content(new FunctionArgument() { Contents = expr.Children }, cs);
+            try
+            {
+                var func = environment.GetValue<IContentValue>(environment.Evaluate(expr.HeadExpr));
+                //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
+                //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
+                var cs = environment.GetChild();//开辟一个子环境
+                return func.Content(new FunctionArgument() { Contents = expr.Children }, cs);
+            }
+            catch (ExprException ex)
+            {
+                throw ex;
+            }
+            catch (IgnoredException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                ExceptionHelper.RaiseContentFailed(expr, null, null, ex);
+                return default;
+            }
         }
 
         public static IExpr EvaluateNodeIndex(ExprNodeIndex expr, EvalContext environment)
         {
-            var func = environment.GetValue<IIndexableValue>(environment.Evaluate(expr.HeadExpr));
-            //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
-            //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
-            var cs = environment.GetChild();//开辟一个子环境
-            return func.Index(new FunctionArgument() { Indexs = expr.Children }, cs);
+            try
+            {
+                var func = environment.GetValue<IIndexableValue>(environment.Evaluate(expr.HeadExpr));
+                //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
+                //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
+                var cs = environment.GetChild();//开辟一个子环境
+                return func.Index(new FunctionArgument() { Indexs = expr.Children }, cs);
+            }
+            catch (ExprException ex)
+            {
+                throw ex;
+            }
+            catch (IgnoredException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                ExceptionHelper.RaiseIndexFailed(expr, null, null, ex);
+                return default;
+            }
         }
 
         public static IExpr EvaluateVariable(VariableToken expr, EvalContext environment)
@@ -206,7 +279,7 @@ namespace iExpr.Evaluators
                 if(v is IValue)
                 {
                     var t = (IValue)v;
-                    if (t.IsConstant) return t;
+                    if (t.IsCertain) return t;
                 }
                 return environment.Evaluate(v);//TODO: Attention here.
             }

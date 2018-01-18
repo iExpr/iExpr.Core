@@ -19,7 +19,7 @@ namespace iExpr
 
         public ModifierToken[] Attached { get; set; }
 
-        public virtual bool IsConstant => false;
+        public virtual bool IsCertain => false;
 
         public VariableToken(string id)
         {
@@ -58,10 +58,10 @@ namespace iExpr
             else return false;
         }
 
-        public override bool Equals(IExpr other)
+        public override bool Equals(IExpr _other)
         {
-            if (other is IValue) return Equals((IValue)other);
-            else return false;
+            var other = _other as VariableToken;
+            return other != null && other.ToString() == this.ToString();
         }
 
         public override int GetHashCode()
@@ -69,12 +69,6 @@ namespace iExpr
             var hashCode = 1895487624;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ID);
             return hashCode;
-        }
-
-        public bool Equals(IValue _other)
-        {
-            var other = _other as VariableToken;
-            return other != null && other.ToString() == this.ToString();
         }
 
         public static bool operator ==(VariableToken node1, VariableToken node2)

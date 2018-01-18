@@ -17,8 +17,8 @@ namespace iExpr.Exprs.Core
             "==",
             (IExpr[] args, EvalContext cal) =>
             {
-                OperationHelper.AssertArgsNumberThrowIf(2, args);
-                OperationHelper.AssertCertainValueThrowIf(args);
+                OperationHelper.AssertArgsNumberThrowIf(Equal,2, args);
+                OperationHelper.AssertCertainValueThrowIf(Equal,args);
                 var ov = cal.GetValue<object>(args);
                 return new ConcreteValue(ov[0].Equals(ov[1]));
             },
@@ -34,8 +34,8 @@ namespace iExpr.Exprs.Core
             "!=",
             (IExpr[] args, EvalContext cal) =>
             {
-                OperationHelper.AssertArgsNumberThrowIf(2, args);
-                OperationHelper.AssertCertainValueThrowIf(args);
+                OperationHelper.AssertArgsNumberThrowIf(Unequal,2, args);
+                OperationHelper.AssertCertainValueThrowIf(Unequal, args);
                 var ov = cal.GetValue<object>(args);
                 return new ConcreteValue(!(ov[0].Equals(ov[1])));
             },
@@ -51,8 +51,8 @@ namespace iExpr.Exprs.Core
             ">",
             (IExpr[] args, EvalContext cal) =>
             {
-                OperationHelper.AssertArgsNumberThrowIf(2, args);
-                OperationHelper.AssertCertainValueThrowIf(args);
+                OperationHelper.AssertArgsNumberThrowIf(Bigger,2, args);
+                OperationHelper.AssertCertainValueThrowIf(Bigger, args);
                 var ov = cal.GetValue<IComparable>(args);
                 return new ConcreteValue(ov[0].CompareTo(ov[1]) > 0);
             },
@@ -68,8 +68,8 @@ namespace iExpr.Exprs.Core
             "<",
             (IExpr[] args, EvalContext cal) =>
             {
-                OperationHelper.AssertArgsNumberThrowIf(2, args);
-                OperationHelper.AssertCertainValueThrowIf(args);
+                OperationHelper.AssertArgsNumberThrowIf(Smaller,2, args);
+                OperationHelper.AssertCertainValueThrowIf(Smaller, args);
                 var ov = cal.GetValue<IComparable>(args);
                 return new ConcreteValue(ov[0].CompareTo(ov[1]) < 0);
             },
@@ -85,8 +85,8 @@ namespace iExpr.Exprs.Core
             ">=",
             (IExpr[] args, EvalContext cal) =>
             {
-                OperationHelper.AssertArgsNumberThrowIf(2, args);
-                OperationHelper.AssertCertainValueThrowIf(args);
+                OperationHelper.AssertArgsNumberThrowIf(NotSmaller,2, args);
+                OperationHelper.AssertCertainValueThrowIf(NotSmaller, args);
                 var ov = cal.GetValue<IComparable>(args);
                 return new ConcreteValue(ov[0].CompareTo(ov[1]) >= 0);
             },
@@ -102,8 +102,8 @@ namespace iExpr.Exprs.Core
             "<=",
             (IExpr[] args, EvalContext cal) =>
             {
-                OperationHelper.AssertArgsNumberThrowIf(2, args);
-                OperationHelper.AssertCertainValueThrowIf(args);
+                OperationHelper.AssertArgsNumberThrowIf(NotBigger,2, args);
+                OperationHelper.AssertCertainValueThrowIf(NotBigger, args);
                 var ov = cal.GetValue<IComparable>(args);
                 return new ConcreteValue(ov[0].CompareTo(ov[1]) <= 0);
             },

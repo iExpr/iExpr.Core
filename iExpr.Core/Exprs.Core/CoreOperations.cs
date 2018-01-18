@@ -10,6 +10,42 @@ namespace iExpr.Exprs.Core
 {
     public class CoreOperations
     {
+        public static List<IValue> BuildValueList(IExpr[] args)
+        {
+            List<IValue> ls = new List<IValue>();
+
+            foreach (var v in args)
+            {
+                switch (v)
+                {
+                    case IEnumerableValue c:
+                        foreach (var x in c)
+                        {
+                            ls.Add(x);
+                        }
+                        break;
+                    case IHasValue c:
+                        if (c.Value is IEnumerableValue)
+                        {
+                            foreach (var x in (c.Value as IEnumerableValue))
+                            {
+                                ls.Add(x);
+                            }
+                        }
+                        else if (c is IValue) ls.Add((IValue)c);
+                        else ExceptionHelper.RaiseNotValue(List, v);
+                        break;
+                    case IValue c:
+                        ls.Add(c);
+                        break;
+                    default:
+                        ExceptionHelper.RaiseNotValue(List, v);
+                        break;
+                }
+            }
+            return ls;
+        }
+
         /// <summary>
         /// Build a list
         /// </summary>
@@ -18,37 +54,8 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                ListValue ls = new ListValue();
-
-                foreach (var v in args)
-                {
-                    switch (v)
-                    {
-                        case IEnumerableValue c:
-                            foreach(var x in c)
-                            {
-                                ls.Add(x);
-                            }
-                            break;
-                        case IHasValue c:
-                            if (c.Value is IEnumerableValue)
-                            {
-                                foreach (var x in (c.Value as IEnumerableValue))
-                                {
-                                    ls.Add(x);
-                                }
-                            }
-                            else if (c is IValue) ls.Add((IValue)c);
-                            else throw new NotValueException();
-                            break;
-                        case IValue c:
-                            ls.Add(c);
-                            break;
-                        default:
-                            throw new NotValueException();
-                    }
-                }
-                return ls;
+                
+                return new ListValue(BuildValueList(args));
             });
 
         /// <summary>
@@ -59,37 +66,8 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                ListValue ls = new ListValue();
-
-                foreach (var v in args)
-                {
-                    switch (v)
-                    {
-                        case IEnumerableValue c:
-                            foreach (var x in c)
-                            {
-                                ls.Add(x);
-                            }
-                            break;
-                        case IHasValue c:
-                            if (c.Value is IEnumerableValue)
-                            {
-                                foreach (var x in (c.Value as IEnumerableValue))
-                                {
-                                    ls.Add(x);
-                                }
-                            }
-                            else if (c is IValue) ls.Add((IValue)c);
-                            else throw new NotValueException();
-                            break;
-                        case IValue c:
-                            ls.Add(c);
-                            break;
-                        default :
-                            throw new NotValueException();
-                    }
-                }
-                return new SetValue(ls);
+                
+                return new SetValue(BuildValueList(args));
             });
 
         /// <summary>
@@ -100,37 +78,8 @@ namespace iExpr.Exprs.Core
             (FunctionArgument _args, EvalContext cal) =>
             {
                 var args = _args.Arguments;
-                ListValue ls = new ListValue();
-
-                foreach (var v in args)
-                {
-                    switch (v)
-                    {
-                        case IEnumerableValue c:
-                            foreach (var x in c)
-                            {
-                                ls.Add(x);
-                            }
-                            break;
-                        case IHasValue c:
-                            if (c.Value is IEnumerableValue)
-                            {
-                                foreach (var x in (c.Value as IEnumerableValue))
-                                {
-                                    ls.Add(x);
-                                }
-                            }
-                            else if(c is IValue) ls.Add((IValue)c);
-                            else throw new NotValueException();
-                            break;
-                        case IValue c:
-                            ls.Add(c);
-                            break;
-                        default:
-                            throw new NotValueException();
-                    }
-                }
-                return new TupleValue(ls);
+                
+                return new TupleValue(BuildValueList(args));
             });
 
         /// <summary>
@@ -234,7 +183,7 @@ namespace iExpr.Exprs.Core
                     if (_args.Arguments != null && _args.Arguments.Length>0)
                     {
                         var args = _args.Arguments;
-                        OperationHelper.AssertArgsNumberThrowIf(1, args);
+                        OperationHelper.AssertArgsNumberThrowIf(Iterator, 1, args);
                         var v = cal.GetValue<IEnumerable<IValue>>(args[0]);
                         return new PreEnumeratorValue(v);
                     }

@@ -8,15 +8,9 @@ namespace iExpr.Values
     {
         public IExpr Expr { get; set; }
 
-        public bool IsConstant => false;
+        public bool IsCertain => false;
 
         public bool Equals(IExpr other)
-        {
-            if (other is NativeExprValue) return (other as NativeExprValue).Expr.Equals(Expr);
-            return false;
-        }
-
-        public bool Equals(IValue other)
         {
             if (other is NativeExprValue) return (other as NativeExprValue).Expr.Equals(Expr);
             return false;

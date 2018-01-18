@@ -8,12 +8,12 @@ namespace iExpr
     /// <summary>
     /// 值类型
     /// </summary>
-    public interface IValue : IExpr,IEquatable<IValue>
+    public interface IValue : IExpr
     {
         /// <summary>
-        /// 判断是否为常量值
+        /// 判断是否为确定值
         /// </summary>
-        bool IsConstant { get; }
+        bool IsCertain { get; }
     }
 
     public interface IHasValue
@@ -41,10 +41,14 @@ namespace iExpr
     public interface IContentValue : IValue
     {
         IExpr Content(FunctionArgument args, EvalContext cal);
+
+
     }
 
     public interface IAccessibleValue : IValue
     {
         IExpr Access(string id);
+
+        IDictionary<string, IExpr> GetMembers();
     }
 }

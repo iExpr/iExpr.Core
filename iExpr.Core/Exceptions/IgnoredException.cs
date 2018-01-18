@@ -4,7 +4,7 @@ using System.Text;
 
 namespace iExpr.Exceptions
 {
-    public class UncertainArgumentException: EvaluateException
+    public class IgnoredException: Exception
     {
     }
 }

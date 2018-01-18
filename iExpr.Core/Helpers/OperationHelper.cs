@@ -18,9 +18,9 @@ namespace iExpr.Helpers
             return args.Length == n;
         }
 
-        public static void AssertArgsNumberThrowIf(int n, params IExpr[] args)
+        public static void AssertArgsNumberThrowIf(object sender, int n, params IExpr[] args)
         {
-            if(!AssertArgsNumber(n,args)) throw new Exceptions.EvaluateException("The number of arguments is wrong");
+            if (!AssertArgsNumber(n, args)) ExceptionHelper.RaiseWrongArgsNumber(sender, n, args?.Length ?? 0);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace iExpr.Helpers
                 switch (v)
                 {
                     case ConcreteValue c:
-                        if (c.IsConstant == false) return false;
+                        if (c.IsCertain == false) return false;
                         if (!(c.Value is T)) return false;
                         break;
                     case ConstantToken c:
@@ -57,20 +57,20 @@ namespace iExpr.Helpers
             {
                 if (v is IValue)
                 {
-                    if (!((IValue)v).IsConstant) return false;
+                    if (!((IValue)v).IsCertain) return false;
                 }
                 else if (!(v is ConstantToken)) return false;
             }
             return true;
         }
 
-        public static void AssertCertainValueThrowIf(params IExpr[] val)
+        public static void AssertCertainValueThrowIf(object sender,params IExpr[] val)
         {
-            if (AssertCertainValue(val) == false) throw new NotValueException();
+            if (AssertCertainValue(val) == false) ExceptionHelper.RaiseUncertainArgument(sender);
         }
-        public static void AssertCertainValueThrowIf<T>(params IExpr[] val)
+        public static void AssertCertainValueThrowIf<T>(object sender, params IExpr[] val)
         {
-            if (AssertCertainValue<T>(val) == false) throw new NotValueException();
+            if (AssertCertainValue<T>(val) == false) ExceptionHelper.RaiseUncertainArgument(sender);
         }
 
         /// <summary>

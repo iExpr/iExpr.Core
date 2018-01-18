@@ -4,26 +4,37 @@ using System.Text;
 
 namespace iExpr.Exceptions
 {
+    public enum EvaluateExceptionType
+    {
+        None
+    }
 
     public class EvaluateException : ExprException
     {
-
-        public EvaluateException() : base()//调用基类的构造器
+        public EvaluateExceptionType Type
         {
-        }
-        public EvaluateException(string message) : base(message)//调用基类的构造器
-        {
-        }
-        public EvaluateException(string message, Exception innerException) : base(message, innerException)//调用基类的构造器
-        {
+            get;protected set;
         }
 
-        public override string Message
+        public object Sender
         {
-            get
-            {
-                return $"Expr evaluating failed: {base.Message}.";  
-            }
+            get;private set;
+        }
+
+        public EvaluateException(object sender,EvaluateExceptionType type= EvaluateExceptionType.None) : base()//调用基类的构造器
+        {
+            Type = type;
+            Sender = sender;
+        }
+        public EvaluateException(object sender, string message, EvaluateExceptionType type = EvaluateExceptionType.None) : base(message)//调用基类的构造器
+        {
+            Type = type;
+            Sender = sender;
+        }
+        public EvaluateException(object sender, string message, Exception innerException, EvaluateExceptionType type = EvaluateExceptionType.None) : base(message, innerException)//调用基类的构造器
+        {
+            Type = type;
+            Sender = sender;
         }
     }
 }

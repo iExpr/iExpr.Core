@@ -10,23 +10,28 @@ namespace iExpr.Values
 {
     public class EnumeratorValue : IAccessibleValue, IEnumerableValue
     {
-        ClassValue clv = null;
+        protected iExpr.Helpers.ExtendAccessibleValueHelper access = null;
 
-        public bool IsConstant => true;
+        void init()
+        {
+            access = new iExpr.Helpers.ExtendAccessibleValueHelper(false, this);
+            access.Add("current", new ConcreteValue(null));
+            access.Add("next", new ConcreteValue(null));
+        }
+
+        public virtual bool IsCertain => true;
 
         public virtual EvalContext Context { get; protected set; }
 
-        public virtual IValue Current { get; set; }
+        public virtual IValue Current { get => (IValue)access["current"]; set => access["current"] = value; }
 
-        protected FunctionValue _Next; 
-
-        public virtual IValue Next { get; set; }
+        public virtual IValue Next { get => (IValue)access["next"]; set => access["next"]=value; }
 
         public EnumeratorValue(EvalContext context=null)
         {
             Context = context;
-            clv = new ClassValue(context);
             Context?.Variables.Set(BuiltinValues.THIS, this);
+            init();
         }
 
         public EnumeratorValue(IValue current,IValue next, EvalContext context=null) :this(context)
@@ -35,26 +40,7 @@ namespace iExpr.Values
             Current = current;
         }
 
-        public virtual IExpr Access(string id)
-        {
-            switch (id)
-            {
-                case "current":
-                    return Current;
-                case "next":
-                    return Next;
-                default:
-                    return clv.Access(id);
-                    //throw new EvaluateException("can't access the id.");
-            }
-        }
-
         public virtual bool Equals(IExpr other)
-        {
-            return false;
-        }
-
-        public virtual bool Equals(IValue other)
         {
             return false;
         }
@@ -79,6 +65,16 @@ namespace iExpr.Values
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public virtual IExpr Access(string id)
+        {
+            return ((IAccessibleValue)access).Access(id);
+        }
+
+        public virtual IDictionary<string, IExpr> GetMembers()
+        {
+            return ((IAccessibleValue)access).GetMembers();
         }
     }
 }

@@ -106,4 +106,74 @@ namespace iExpr.Parsers
             }
         }
     }
+
+    public class RealNumberTokenChecker : TokenChecker
+    {
+        int pointcnt = 0;
+        //bool isneg = false;
+
+        public override void Clear()
+        {
+            base.Clear(); pointcnt = 0;
+            //isneg = false;
+        }
+
+        public override bool? Append(char c)
+        {
+            var res = base.Append(c);
+            if (c == '.') { pointcnt++; return null; }
+            //if (c == '-') isneg = true;
+            return res;
+        }
+
+        public override bool? Test(char c)
+        {
+            if (Flag == null)
+                return char.IsDigit(c);// || c=='-';
+            if (c == '.') if (pointcnt == 0) return null; else return false;
+            return char.IsDigit(c);
+        }
+    }
+
+    public class StringTokenChecker : TokenChecker
+    {
+        bool? isended = null;
+        //bool isneg = false;
+
+        public override void Clear()
+        {
+            base.Clear(); isended = null;
+            //isneg = false;
+        }
+
+        public override bool? Append(char c)
+        {
+            var res = base.Append(c);
+            if (c == '"')
+            {
+                if (isended == null)
+                {
+                    isended = false;
+                }
+                else if (isended == false)
+                {
+                    isended = true;
+                }
+            }
+            else
+            {
+                if (Flag != true)//str starts(not null, because it has been appended)
+                    isended = true;
+            }
+            return res;
+        }
+
+        public override bool? Test(char c)
+        {
+            if (Flag == null)
+                return c == '"';// || c=='-';
+            if (isended == true) return false;
+            return true;
+        }
+    }
 }

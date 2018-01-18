@@ -1,4 +1,5 @@
 ﻿using iExpr.Evaluators;
+using iExpr.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,7 +18,7 @@ namespace iExpr.Values
             base.ToStringFunc = val.ToString;
         }
 
-        public override bool IsConstant => Value.IsConstant;
+        public override bool IsCertain => Value.IsCertain;
 
         object IHasValue.Value => Value is ConcreteValue ? (Value as ConcreteValue).Value : Value;
 
@@ -69,7 +70,8 @@ namespace iExpr.Values
             }
             else
             {
-                throw new EvaluateException("can't access the id.");
+                ExceptionHelper.RaiseAccessFailed(this, id);
+                return default;
             }
         }
 

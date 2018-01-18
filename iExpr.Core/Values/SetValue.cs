@@ -40,18 +40,18 @@ namespace iExpr.Values
         /// <summary>
         /// 集合内容
         /// </summary>
-        private HashSet<CollectionItemValue> values = new HashSet<CollectionItemValue>();
+        private HashSet<CollectionItemValue> Contents = new HashSet<CollectionItemValue>();
 
-        protected override IEnumerable<CollectionItemValue> _Contents { get => values; }
+        protected override IEnumerable<CollectionItemValue> _Contents { get => Contents; }
 
-        public override bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
+        public override bool IsReadOnly => ((ICollection<CollectionItemValue>)Contents).IsReadOnly;
 
-        public override int Count => values.Count;
+        public override int Count => Contents.Count;
 
         public override string ToString()
         {
-            if (values == null) return "{}";
-            return $"{{{String.Join(",", values.Select(x => x?.ToString()))}}}";
+            if (Contents == null) return "{}";
+            return $"{{{String.Join(",", Contents.Select(x => x?.ToString()))}}}";
         }
 
         public override void Reset(IEnumerable<IValue> vals = null)
@@ -83,7 +83,7 @@ namespace iExpr.Values
 
         public override bool Add(IValue item)
         {
-            return values.Add(new CollectionItemValue(item));
+            return Contents.Add(new CollectionItemValue(item));
         }
 
         IEnumerable<CollectionItemValue> getitems(IEnumerable<IValue> other)
@@ -93,72 +93,72 @@ namespace iExpr.Values
 
         public override void ExceptWith(IEnumerable<IValue> other)
         {
-            values.ExceptWith(getitems(other));
+            Contents.ExceptWith(getitems(other));
         }
 
         public override void IntersectWith(IEnumerable<IValue> other)
         {
-            values.IntersectWith(getitems(other));
+            Contents.IntersectWith(getitems(other));
         }
 
         public override bool IsProperSubsetOf(IEnumerable<IValue> other)
         {
-            return values.IsProperSubsetOf(getitems(other));
+            return Contents.IsProperSubsetOf(getitems(other));
         }
 
         public override bool IsProperSupersetOf(IEnumerable<IValue> other)
         {
-            return values.IsProperSupersetOf(getitems(other));
+            return Contents.IsProperSupersetOf(getitems(other));
         }
 
         public override bool IsSubsetOf(IEnumerable<IValue> other)
         {
-            return values.IsSubsetOf(getitems(other));
+            return Contents.IsSubsetOf(getitems(other));
         }
 
         public override bool IsSupersetOf(IEnumerable<IValue> other)
         {
-            return values.IsSupersetOf(getitems(other));
+            return Contents.IsSupersetOf(getitems(other));
         }
 
         public override bool Overlaps(IEnumerable<IValue> other)
         {
-            return values.Overlaps(getitems(other));
+            return Contents.Overlaps(getitems(other));
         }
 
         public override bool SetEquals(IEnumerable<IValue> other)
         {
-            return values.SetEquals(getitems(other));
+            return Contents.SetEquals(getitems(other));
         }
 
         public override void SymmetricExceptWith(IEnumerable<IValue> other)
         {
-            values.SymmetricExceptWith(getitems(other));
+            Contents.SymmetricExceptWith(getitems(other));
         }
 
         public override void UnionWith(IEnumerable<IValue> other)
         {
-            values.UnionWith(getitems(other));
+            Contents.UnionWith(getitems(other));
         }
 
         public override void Clear()
         {
-            values.Clear();
+            Contents.Clear();
         }
 
         public override bool Contains(IValue item)
         {
-            return values.Contains(item);
+            return Contents.Contains(item);
         }
 
         public override void CopyTo(IValue[] array, int arrayIndex)
         {
-            new HashSet<IValue>((this.values.Select(x => (IValue)x))).CopyTo(array, arrayIndex);
+            new HashSet<IValue>((this.Contents.Select(x => (IValue)x))).CopyTo(array, arrayIndex);
         }
 
         CollectionItemValue GetItemValue(object item)
         {
-            foreach (var x in values)
+            foreach (var x in Contents)
                 if (x.Value == item) return x;
             return null;
         }
@@ -166,12 +166,7 @@ namespace iExpr.Values
         public override bool Remove(IValue item)
         {
             var id = GetItemValue(item); if (id == null) return true;
-            return values.Remove(id);
-        }
-
-        public override bool Equals(IValue other)
-        {
-            return Equals((IExpr)other);//this.ToString() == other.ToString();
+            return Contents.Remove(id);
         }
     }
 }

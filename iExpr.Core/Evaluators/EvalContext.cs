@@ -31,9 +31,9 @@ namespace iExpr.Evaluators
         /// <summary>
         /// 运算提供者
         /// </summary>
-        public IExprEvaluator Evaluator { get; set; }
+        public virtual IExprEvaluator Evaluator { get; set; }
 
-        public VariableFindMode VariableFindMode { get; protected set; }
+        public virtual VariableFindMode VariableFindMode { get; protected set; }
 
         /// <summary>
         /// 获取一个新的子环境
@@ -47,16 +47,16 @@ namespace iExpr.Evaluators
         /// <summary>
         /// 变量列表
         /// </summary>
-        public VariableValueProvider Variables { get; set; } = new VariableValueProvider();
+        public virtual VariableValueProvider Variables { get; set; } = new VariableValueProvider();
 
         /// <summary>
         /// 父级运算环境
         /// </summary>
-        public EvalContext Parent { get; set; }
+        public virtual EvalContext Parent { get; set; }
 
-        public CancellationTokenSource CancelToken { get; protected set; }
+        public virtual CancellationTokenSource CancelToken { get; protected set; }
 
-        public void Renew(CancellationTokenSource cancel=null)
+        public virtual void Renew(CancellationTokenSource cancel=null)
         { 
             CancelToken = cancel ?? new CancellationTokenSource();
         }
@@ -72,7 +72,7 @@ namespace iExpr.Evaluators
             return res;
         }
 
-        public IExpr Evaluate(IExpr expr,bool evalConstant=false)
+        public virtual IExpr Evaluate(IExpr expr,bool evalConstant=false)
         {
             try
             {
@@ -87,112 +87,85 @@ namespace iExpr.Evaluators
                 throw ex;
             }
         }
-        
-        public void AssertNotCancel()
+
+        public virtual void AssertNotCancel()
         {
             CancelToken.Token.ThrowIfCancellationRequested();
         }
 
-        public void Cancel()
+        public virtual void Cancel()
         {
             CancelToken.Cancel();
         }
 
-        public bool HasVariable(string id)
+        public virtual bool HasVariable(string id)
         {
-            switch (VariableFindMode)
-            {
-                case VariableFindMode.UpAll:
-                case VariableFindMode.UpGetOnly:
-                    {
-                        var p = this;
-                        while (p != null && p.Variables.ContainsKey(id) != true) p = p.Parent;
-                        if (p == null) return false;
-                        else
-                        {
-                            return true;
-                        }
-                    }
-                case VariableFindMode.NoUp:
-                    return this.Variables.ContainsKey(id);
-                default:
-                    throw new UndefinedExecuteException();
-            }
-            
+            if (this.Variables?.ContainsKey(id)==true) return true;
+            else if (VariableFindMode == VariableFindMode.UpAll || VariableFindMode == VariableFindMode.UpGetOnly) return this.Parent?.HasVariable(id) ?? false;
+            return false;
         }
 
-        public T GetVariableValue<T>(string id)
+        public virtual T GetVariableValue<T>(string id)
         {
-            switch (VariableFindMode)
+            if (this.Variables?.ContainsKey(id) == true) return this.Variables.Get<T>(id);
+            else if (VariableFindMode == VariableFindMode.UpAll || VariableFindMode == VariableFindMode.UpGetOnly)
             {
-                case VariableFindMode.UpAll:
-                case VariableFindMode.UpGetOnly:
-                    {
-                        var p = this;
-                        while (p != null && p.Variables.ContainsKey(id) != true) p = p.Parent;
-                        if (p == null) return default(T);
-                        else
-                        {
-                            var v = p.Variables.Get<T>(id);
-                            return v;
-                        }
-                    }
-                case VariableFindMode.NoUp:
-                    return this.Variables.ContainsKey(id)?this.Variables.Get<T>(id):default(T);
-                default:
-                    throw new UndefinedExecuteException();
+                if (this.Parent == null) return default;
+                else return this.Parent.GetVariableValue<T>(id);
+            }
+            else
+            {
+                return default;
             }
         }
 
-        public IExpr GetVariableValue(string id)
+        public virtual IExpr GetVariableValue(string id)
         {
-            switch (VariableFindMode)
+            if (this.Variables?.ContainsKey(id) == true) return this.Variables.Get(id);
+            else if (VariableFindMode == VariableFindMode.UpAll || VariableFindMode == VariableFindMode.UpGetOnly)
             {
-                case VariableFindMode.UpAll:
-                case VariableFindMode.UpGetOnly:
-                    {
-                        var p = this;
-                        while (p != null && p.Variables.ContainsKey(id) != true) p = p.Parent;
-                        if (p == null) return null;
-                        else
-                        {
-                            var v = p.Variables.Get(id);
-                            return v;
-                        }
-                    }
-                case VariableFindMode.NoUp:
-                    return this.Variables.ContainsKey(id) ? this.Variables.Get(id) : null;
-                default:
-                    throw new UndefinedExecuteException();
+                if (this.Parent == null) return default;
+                else return this.Parent.GetVariableValue(id);
+            }
+            else
+            {
+                return default;
             }
         }
 
-        public void SetVariableValue(string id,IExpr val)
+        public virtual bool TrySetVariableValue(string id,IExpr val)
         {
-            switch (VariableFindMode)
+            if (this.Variables?.ContainsKey(id) == true)
             {
-                case VariableFindMode.UpAll:
-                    {
-                        var p = this;
-                        while (p != null && p.Variables?.ContainsKey(id) != true) p = p.Parent;
-                        if (p == null)
-                        {
-                            this.Variables.Set(id, val);
-                        }
-                        else
-                        {
-                            p.Variables.Set(id, val);
-                        }
-                    }
-                    break;
-                case VariableFindMode.UpGetOnly:
-                case VariableFindMode.NoUp:
-                    this.Variables.Set(id, val);
-                    break;
-                default:
-                    throw new UndefinedExecuteException();
+                this.Variables.Set(id, val);
+                return true;
             }
-            
+            if (VariableFindMode == VariableFindMode.UpAll)
+            {
+                return this.Parent?.TrySetVariableValue(id, val) == true;
+            }
+            return false;
+        }
+
+        public virtual bool SetVariableValue(string id,IExpr val)
+        {
+            if (this.Variables?.ContainsKey(id) == true)
+            {
+                this.Variables.Set(id, val);
+                return true;
+            }
+            if (VariableFindMode == VariableFindMode.UpAll)
+            {
+                //Only null
+                if (this.Parent?.TrySetVariableValue(id, val) != true) this.Variables.Set(id, val);
+                return true;
+            }
+            else
+            {
+                this.Variables.Set(id, val);
+                return true;
+            }
+            //return false;
         }
 
         protected virtual T ConvertValue<T>(object val)

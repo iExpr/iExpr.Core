@@ -7,7 +7,7 @@ namespace iExpr
 {
     public class ConstantToken : VariableToken, IHasValue
     {
-        public override bool IsConstant => true;
+        public override bool IsCertain => true;
 
         public IValue Value { get; protected set; }
 

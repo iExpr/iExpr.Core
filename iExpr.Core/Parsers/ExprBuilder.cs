@@ -54,7 +54,7 @@ namespace iExpr.Parsers
                 }
                 cur = s - 1;
                 var res=sb.ToString();
-                if (Symbols.IsConstant(res) == false) return null;//throw new Exception("it's not a constant");
+                if (Symbols.IsCertain(res) == false) return null;//throw new Exception("it's not a constant");
                 return res;
             }
             string nextVal()
@@ -115,7 +115,7 @@ namespace iExpr.Parsers
                     string to = otc.LastToken, tb = btc.LastToken, tv = vtc.LastToken;
                     int lo = to?.Length ?? 0, lb = tb?.Length ?? 0, lv = tv?.Length ?? 0;
                     int mx = Math.Max(lo, Math.Max(lv, lb));
-                    if(mx==0)throw new ParseException(sb.ToString(), "Can't recoginize this token");
+                    if(mx==0)ExceptionHelper.RaiseUnrecognizedToken(sb.ToString());
                     if (lo == mx) ret = SymbolType.Operation;
                     else if (lb == mx) ret = SymbolType.BasicValue;
                     else ret = SymbolType.Variable;
@@ -146,7 +146,7 @@ namespace iExpr.Parsers
                 if (cur >= expr.Length) return "";
                 if(Environment.GetSpecialSymbolType(expr[cur])!= SymbolType.UnionEdge)//@abc 形式
                 {
-                    throw new Exception("except a \" but can't find it.");
+                    ExceptionHelper.RaiseUnrecognizedToken(expr[cur].ToString(), "except a \" but can't find it.");
                     //return nextVal();
                 }
                 //@"abc" 形式
@@ -419,9 +419,9 @@ namespace iExpr.Parsers
                         case SymbolType.RightBracket:
                         case SymbolType.RightBrace:
                             {
-                                if (leftbrs.Count == 0) throw new ParseException("An unexpected right bracket.");
+                                if (leftbrs.Count == 0) ExceptionHelper.RaiseExtraBracket(s, "An unexpected right bracket.");
                                 var p = leftbrs.Peek();
-                                if (p.Item1 + toint(s.Type) != 10) throw new ParseException("An unexpected right bracket.");
+                                if (p.Item1 + toint(s.Type) != 10) ExceptionHelper.RaiseExtraBracket(s,"An unexpected right bracket.");
 
                                 package(cur);//最后一段打包
 
@@ -513,13 +513,13 @@ namespace iExpr.Parsers
                             }
                             break;
                         case SymbolType.Access:
-                            if(val.Count == 0 || val.Peek().s.Right!=cur-1) throw new ParseException("No pre variable for access expr.");
-                            if (cur + 1 >= syms.Length) throw new ParseException("No suffix variable for access expr.");
+                            if(val.Count == 0 || val.Peek().s.Right!=cur-1) ExceptionHelper.RaiseRelatedExpressionNotFound(s,"No pre variable for access expr.");
+                            if (cur + 1 >= syms.Length) ExceptionHelper.RaiseRelatedExpressionNotFound(s, "No suffix variable for access expr.");
                             { 
                                 cur++;var l = val.Pop();
                                 var t = syms[cur];
-                                if (t.Type != SymbolType.Variable) throw new ParseException("The access expr is only used by variable.");
-                                val.Push((new ExprNodeAccess(l.val, new VariableToken(t)), new Segment(l.s.Left,cur)));
+                                if (t.Type != SymbolType.Variable) ExceptionHelper.RaiseUnexpectedExpression(t,"The access expr is only used by variable.");
+                                val.Push((new ExprNodeAccess(l.val, new VariableToken(t)), new Segment(l.s.Left, cur)));
                             }
                             break;
                         case SymbolType.Operation:
@@ -535,7 +535,7 @@ namespace iExpr.Parsers
                                     {
                                         if (op.ArgumentCount == 1 && op.Association == Association.Left)//x!
                                         {
-                                            if (val.Count == 0 || val.Peek().s.Right!=cur-1) throw new ParseException("No left expr.");
+                                            if (val.Count == 0 || val.Peek().s.Right!=cur-1) ExceptionHelper.RaiseRelatedExpressionNotFound(s,"No left expr.");
                                             var vl = val.Pop();
                                             val.Push((new ExprNodeSingleOperation(op,vl.val), new Segment(vl.s.Left,cur)));
                                         }
@@ -555,7 +555,7 @@ namespace iExpr.Parsers
                                         }
                                         if (op.ArgumentCount == 1 && op.Association == Association.Left)
                                         {
-                                            if (val.Count == 0 || val.Peek().s.Right != cur - 1) throw new ParseException("No left expr.");
+                                            if (val.Count == 0 || val.Peek().s.Right != cur - 1) ExceptionHelper.RaiseRelatedExpressionNotFound(s, "No left expr.");
                                             var vl = val.Pop();
                                             val.Push((new ExprNodeSingleOperation(op, vl.val), new Segment(vl.s.Left, cur)));
                                         }
@@ -581,13 +581,17 @@ namespace iExpr.Parsers
                             break;
                     }
                 }
-                if (val.Count > 1) throw new ParseException(expr,"Not a complete expr");
+                if (val.Count > 1) ExceptionHelper.RaiseIncompleteExpression(expr, "Not a complete expr");
                 if (val.Count == 0) return BuiltinValues.Null;
                 return val.Pop().val;
             }
+            catch(ParseException ex)
+            {
+                throw ex;
+            }
             catch (Exception ex)
             {
-                throw new ParseException("Parsing failed.",ex);
+                throw new ParseException(expr,"Parsing failed.",ex);
             }
         }
     }

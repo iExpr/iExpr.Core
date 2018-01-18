@@ -9,7 +9,7 @@ namespace iExpr.Values
 {
     public class CollectionItemValue : ConcreteValue
     {
-        public override bool IsConstant => base.IsConstant;
+        public override bool IsCertain => base.IsCertain;
 
         public bool IsReadOnly { get; protected set; } = false;
 
@@ -61,7 +61,7 @@ namespace iExpr.Values
             get;
         }
 
-        public virtual bool IsConstant
+        public virtual bool IsCertain
         {
             get
             {
@@ -71,7 +71,7 @@ namespace iExpr.Values
                     switch (v)
                     {
                         case IValue c:
-                            if (c.IsConstant == false) return false;
+                            if (c.IsCertain == false) return false;
                             break;
                         default:
                             return false;
@@ -98,7 +98,5 @@ namespace iExpr.Values
             foreach (var v in _Contents)
                 yield return (v.Value is IValue) ? (IValue)v.Value : v;
         }
-
-        public abstract bool Equals(IValue other);
     }
 }

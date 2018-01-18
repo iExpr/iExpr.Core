@@ -31,33 +31,33 @@ namespace iExpr.Values
     /// </summary>
     public class ListValue : ListValueBase
     {
-        private List<CollectionItemValue> values = new List<CollectionItemValue>();
+        protected List<CollectionItemValue> Contents = new List<CollectionItemValue>();
 
-        protected override IEnumerable<CollectionItemValue> _Contents { get => values; }
+        protected override IEnumerable<CollectionItemValue> _Contents { get => Contents; }
 
-        public override bool IsReadOnly => ((ICollection<CollectionItemValue>)values).IsReadOnly;
+        public override bool IsReadOnly => ((ICollection<CollectionItemValue>)Contents).IsReadOnly;
 
         public override IValue this[int index]
         {
-            get => this.values[index];
-            set => this.values[index].Value = value;//TODO: Attetion to this.
+            get => this.Contents[index];
+            set => this.Contents[index].Value = value;//TODO: Attetion to this.
         }
 
         public override IExpr Index(FunctionArgument args, EvalContext cal)
         {
             if (args.Indexs?.Length != 1)
-                throw new EvaluateException("The index content is invalid.");
+                ExceptionHelper.RaiseIndexFailed(this, args);
             var ind = cal.GetValue<int>(cal.Evaluate(args.Indexs[0]));
             //int ind = ConcreteValueHelper.GetValue<int>(pind);//TODO: Check for null
             return this[ind];
         }
 
-        public override int Count => values.Count;
+        public override int Count => Contents.Count;
 
         public override string ToString()
         {
-            if (values == null) return "[]";
-            return $"[{String.Join(",", values.Select(x => x.Value?.ToString()))}]";
+            if (Contents == null) return "[]";
+            return $"[{String.Join(",", Contents.Select(x => x.Value?.ToString()))}]";
         }
 
         public override void Reset(IEnumerable<IValue> vals = null)
@@ -91,38 +91,38 @@ namespace iExpr.Values
         {
             //var it = cal.GetValue(item);
             //if (item is ConcreteValue) it = (item as ConcreteValue).Value as IValue;
-            for (int i = 0; i < values.Count; i++)
+            for (int i = 0; i < Contents.Count; i++)
             {
-                if (values[i].Equals(item)) return i;
+                if (Contents[i].Equals(item)) return i;
             }
             return -1;
         }
 
         CollectionItemValue GetItemValue(object item)
         {
-            foreach (var x in values)
+            foreach (var x in Contents)
                 if (x.Value == item) return x;
             return null;
         }
 
         public override void Insert(int index, IValue item)
         {
-            values.Insert(index, new CollectionItemValue(item));
+            Contents.Insert(index, new CollectionItemValue(item));
         }
 
         public override void RemoveAt(int index)
         {
-            values.RemoveAt(index);
+            Contents.RemoveAt(index);
         }
 
         public override void Add(IValue item)
         {
-            values.Add(new CollectionItemValue(item));
+            Contents.Add(new CollectionItemValue(item));
         }
 
         public override void Clear()
         {
-            values.Clear();
+            Contents.Clear();
         }
 
         public override bool Contains(IValue item)
@@ -134,18 +134,13 @@ namespace iExpr.Values
         {
             //throw new Exceptions.UndefinedExecuteException();
 
-            new List<IValue>((this.values.Select(x=>(IValue)x))).CopyTo(array, arrayIndex);
+            new List<IValue>((this.Contents.Select(x=>(IValue)x))).CopyTo(array, arrayIndex);
         }
 
         public override bool Remove(IValue item)
         {
             var id = GetItemValue(item);if (id == null) return true;
-            return values.Remove(id);
-        }
-
-        public override bool Equals(IValue other)
-        {
-            return Equals((IExpr)other);//this.ToString() == other.ToString();
+            return Contents.Remove(id);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace iExpr.Values
 {
     public abstract class FunctionValue : ICallableValue,IContentValue
     {
-        public bool IsConstant => true;
+        public bool IsCertain => true;
 
         public virtual bool IsSelfCalculate { get; protected set; } = false;
 

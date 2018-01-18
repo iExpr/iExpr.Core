@@ -7,7 +7,7 @@ namespace iExpr.Values
 {
     public class ClassValue : Dictionary<string, CollectionItemValue>, IAccessibleValue
     {
-        public virtual bool IsConstant => true;
+        public virtual bool IsCertain => true;
 
         public virtual EvalContext Context { get; protected set; }
 
@@ -33,14 +33,14 @@ namespace iExpr.Values
             return ((object)this).Equals(other);
         }
 
-        public virtual bool Equals(IValue other)
-        {
-            return ((object)this).Equals(other);
-        }
-
         public override string ToString()
         {
             return $"<class value with {this.Count} member(s)>";
+        }
+
+        public IDictionary<string, IExpr> GetMembers()
+        {
+            return (IDictionary<string, IExpr>)this;
         }
     }
 }
