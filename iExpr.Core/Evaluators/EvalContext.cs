@@ -209,6 +209,16 @@ namespace iExpr.Evaluators
         {
             if (e is T) return (T)e;
             if (e is IHasValue) return ConvertValue<T>((e as IHasValue).Value);
+            if (e is IPackageValue)
+            {
+                var g = (IPackageValue)e;
+                if (g.CoreObject is T) return (T)g.CoreObject;
+                try
+                {
+                    return ConvertValue<T>(g.CoreObject);
+                }
+                catch { }
+            }
             return ConvertValue<T>(e);
         }
 

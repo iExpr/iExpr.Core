@@ -49,7 +49,7 @@ namespace iExpr.Values
     }
     */
 
-    public class PreClassValue : ClassValue
+    public class PreClassValue : ClassValue,IPackageValue
     {
         public string ClassName { get; internal protected set; }
 
@@ -58,6 +58,8 @@ namespace iExpr.Values
         public PreFunctionValue CtorMethod { get; internal protected set; }
 
         public Func<string> ToStringFunc { get; internal protected set; }
+
+        public object CoreObject { get; internal protected set; }
 
         public override IExpr Access(string id)
         {
@@ -74,8 +76,8 @@ namespace iExpr.Values
                 return default;
             }
         }
-
         internal PreClassValue() { }
+        internal PreClassValue(object value):this() { CoreObject = value; }
 
         public override string ToString()
         {

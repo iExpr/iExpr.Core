@@ -100,7 +100,7 @@ namespace iExpr.Helpers
             }*/
             var type = obj.GetType();
             if (!Attribute.IsDefined(type, typeof(CanClassValueAttribute))) throw new ArgumentException("The object can't be built.");
-            PreClassValue pc = new PreClassValue();
+            PreClassValue pc = new PreClassValue(obj);
             var pa = (CanClassValueAttribute)Attribute.GetCustomAttribute(type, typeof(CanClassValueAttribute));
             pc.ClassName = pa.Name ?? type.Name;
             pc.CanChangeMember = pa.CanChangeMember;

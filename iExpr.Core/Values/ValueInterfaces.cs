@@ -13,6 +13,11 @@ namespace iExpr.Values
     {
     }
 
+    public interface IPackageValue : IValue
+    {
+        object CoreObject { get; }
+    }
+
     public interface ICountableValue : IValue
     {
         int Count { get; }
