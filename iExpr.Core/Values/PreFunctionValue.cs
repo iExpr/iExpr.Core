@@ -21,9 +21,10 @@ namespace iExpr.Values
 
         protected PreFunctionValue() { ArgumentCount = -1; }
 
-        public PreFunctionValue(string keyWord, Func<FunctionArgument, EvalContext, IExpr> calculate, int argsCount = -1,bool isselfCal=false)
+        public PreFunctionValue(string keyWord, Func<FunctionArgument, EvalContext, IExpr> calculate, int argsCount = -1,bool isselfCal=false,EvalContextStartupInfo contextInfo=default)
         {
             Keyword = keyWord;
+            ContextInfo = contextInfo;
             EvaluateFunc = calculate;
             ArgumentCount = argsCount;
             IsSelfCalculate = isselfCal;

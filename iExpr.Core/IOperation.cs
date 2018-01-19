@@ -44,6 +44,8 @@ namespace iExpr
         lowest=140
     }
 
+    
+
     /// <summary>
     /// 运算
     /// </summary>
@@ -58,6 +60,8 @@ namespace iExpr
         /// 参数个数
         /// </summary>
         int ArgumentCount { get; }
+
+        EvalContextStartupInfo ContextInfo { get; }
 
         /// <summary>
         /// 结合性

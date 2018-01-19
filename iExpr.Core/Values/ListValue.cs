@@ -12,6 +12,7 @@ namespace iExpr.Values
     public abstract class ListValueBase : CollectionValue, IList<IValue>, IIndexableValue
     {
         public abstract IValue this[int index] { get; set; }
+        public virtual EvalContextStartupInfo ContextInfo { get; protected set; }
 
         public abstract bool IsReadOnly { get; }
 

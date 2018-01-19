@@ -30,19 +30,23 @@ namespace iExpr
 
         int ArgumentCount { get; }
 
+        EvalContextStartupInfo ContextInfo { get; }
+
         IExpr Call(FunctionArgument args, EvalContext cal);
     }
 
     public interface IIndexableValue : IValue
     {
         IExpr Index(FunctionArgument args, EvalContext cal);
+
+        EvalContextStartupInfo ContextInfo { get; }
     }
 
     public interface IContentValue : IValue
     {
         IExpr Content(FunctionArgument args, EvalContext cal);
 
-
+        EvalContextStartupInfo ContextInfo { get; }
     }
 
     public interface IAccessibleValue : IValue

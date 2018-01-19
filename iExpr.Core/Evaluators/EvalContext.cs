@@ -26,7 +26,7 @@ namespace iExpr.Evaluators
         NoUp
     }
 
-    public class EvalContext
+    public class EvalContext : IDisposable
     {
         /// <summary>
         /// 运算提供者
@@ -35,13 +35,15 @@ namespace iExpr.Evaluators
 
         public virtual VariableFindMode VariableFindMode { get; protected set; }
 
+        public virtual VariableValueProvider BasicVariables { get; set; }
+
         /// <summary>
         /// 获取一个新的子环境
         /// </summary>
         /// <returns></returns>
         public virtual EvalContext GetChild(VariableFindMode mode = VariableFindMode.UpAll)
         {
-            return new EvalContext() { Evaluator=Evaluator,CancelToken=CancelToken, Parent = this};
+            return new EvalContext() { Evaluator=Evaluator,CancelToken=CancelToken, Parent = this,BasicVariables=BasicVariables};
         }
 
         /// <summary>
@@ -101,6 +103,7 @@ namespace iExpr.Evaluators
         public virtual bool HasVariable(string id)
         {
             if (this.Variables?.ContainsKey(id)==true) return true;
+            if (this.BasicVariables?.ContainsKey(id) == true) return true;
             else if (VariableFindMode == VariableFindMode.UpAll || VariableFindMode == VariableFindMode.UpGetOnly) return this.Parent?.HasVariable(id) ?? false;
             return false;
         }
@@ -108,6 +111,7 @@ namespace iExpr.Evaluators
         public virtual T GetVariableValue<T>(string id)
         {
             if (this.Variables?.ContainsKey(id) == true) return this.Variables.Get<T>(id);
+            if (this.BasicVariables?.ContainsKey(id) == true) return this.BasicVariables.Get<T>(id);
             else if (VariableFindMode == VariableFindMode.UpAll || VariableFindMode == VariableFindMode.UpGetOnly)
             {
                 if (this.Parent == null) return default;
@@ -122,6 +126,7 @@ namespace iExpr.Evaluators
         public virtual IExpr GetVariableValue(string id)
         {
             if (this.Variables?.ContainsKey(id) == true) return this.Variables.Get(id);
+            if (this.BasicVariables?.ContainsKey(id) == true) return this.BasicVariables.Get(id);
             else if (VariableFindMode == VariableFindMode.UpAll || VariableFindMode == VariableFindMode.UpGetOnly)
             {
                 if (this.Parent == null) return default;
@@ -138,6 +143,11 @@ namespace iExpr.Evaluators
             if (this.Variables?.ContainsKey(id) == true)
             {
                 this.Variables.Set(id, val);
+                return true;
+            }
+            if (this.BasicVariables?.ContainsKey(id) == true)
+            {
+                this.BasicVariables.Set(id, val);
                 return true;
             }
             if (VariableFindMode == VariableFindMode.UpAll)
@@ -213,5 +223,44 @@ namespace iExpr.Evaluators
                 return GetValue<T>(e);
             }).ToArray();
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // 要检测冗余调用
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 释放托管状态(托管对象)。
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+                // TODO: 将大型字段设置为 null。
+
+                this.Evaluator = null;
+                this.Variables = null;
+                this.Parent = null;
+                this.BasicVariables = null;
+                disposedValue = true;
+            }
+        }
+
+        // TODO: 仅当以上 Dispose(bool disposing) 拥有用于释放未托管资源的代码时才替代终结器。
+        // ~EvalContext() {
+        //   // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+        //   Dispose(false);
+        // }
+
+        // 添加此代码以正确实现可处置模式。
+        public void Dispose()
+        {
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose(true);
+            // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

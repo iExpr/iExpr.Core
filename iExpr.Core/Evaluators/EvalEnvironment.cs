@@ -24,7 +24,7 @@ namespace iExpr.Evaluators
         {
             var res = EvalContext.Create(cancel ?? new System.Threading.CancellationTokenSource());
             res.Evaluator = Evaluator;
-            res.Variables = Variables;
+            res.BasicVariables = Variables;
             return res;
         }
     }

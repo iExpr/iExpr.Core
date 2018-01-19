@@ -23,6 +23,8 @@ namespace iExpr
             else return $"({v.ToString()})";
         }
 
+        public EvalContextStartupInfo ContextInfo { get; protected set; }
+
         public string Keyword { get; private set; }
         public int ArgumentCount { get; private set; }
         public Association Association { get; private set; }
@@ -32,10 +34,11 @@ namespace iExpr
         public Func<IExpr[], EvalContext, IExpr> EvaluateFunc { get; private set; }
         public Func<IExpr[], string> ToStringFunc { get; private set; }
 
-        public Operator(string keyWord, Func<IExpr[], EvalContext, IExpr> calculate, Func<IExpr[], string> toexprString = null, double priority = 0, Association association = Association.Left, int quantityNumber = -1, uint[] selfCalculate = null)
+        public Operator(string keyWord, Func<IExpr[], EvalContext, IExpr> calculate, Func<IExpr[], string> toexprString = null, double priority = 0, Association association = Association.Left, int quantityNumber = -1, uint[] selfCalculate = null,EvalContextStartupInfo contextInfo=default)
         {
             Keyword = keyWord;
             EvaluateFunc = calculate;
+            ContextInfo = contextInfo;
             if (toexprString != null)
             {
                 ToStringFunc = toexprString;

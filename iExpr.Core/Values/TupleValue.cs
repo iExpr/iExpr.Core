@@ -12,6 +12,8 @@ namespace iExpr.Values
     public abstract class TupleValueBase : CollectionValue, IIndexableValue
     {
         public abstract IExpr Index(FunctionArgument args, EvalContext cal);
+
+        public virtual EvalContextStartupInfo ContextInfo { get; protected set; }
     }
 
     /// <summary>

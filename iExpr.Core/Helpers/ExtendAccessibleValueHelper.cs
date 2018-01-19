@@ -1,4 +1,5 @@
-﻿using iExpr.Values;
+﻿using iExpr.Evaluators;
+using iExpr.Values;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +8,7 @@ namespace iExpr.Helpers
 {
     public class ExtendAccessibleValueHelper : Dictionary<string, IExpr>, IAccessibleValue
     {
+
         public ExtendAccessibleValueHelper(bool canChangeMember, object parent)
         {
             CanChangeMember = canChangeMember;

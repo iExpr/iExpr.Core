@@ -121,7 +121,6 @@ namespace iExpr.Exprs.Core
             (IExpr[] args, EvalContext cal) =>
             {
                 OperationHelper.AssertArgsNumber(2, args);
-                var c = cal.GetChild();
                 List<string> vs = new List<string>();
                 if (args[0] is TupleValue)
                 {
@@ -166,14 +165,14 @@ namespace iExpr.Exprs.Core
                 "class",
                 (FunctionArgument _args, EvalContext cal) =>
                 {
-                    var res= new ClassValue(cal);
+                    var res = new ClassValue(cal);
                     var children = _args.Contents;
                     foreach (var x in children)
                     {
                         cal.Evaluate(x);
                     }
                     return res;
-                }
+                }, -1, false, new EvalContextStartupInfo(true,true)
                 );
 
         public static PreFunctionValue Iterator { get; } = new PreFunctionValue(
@@ -202,7 +201,7 @@ namespace iExpr.Exprs.Core
                            (x, y) => next.Call(x, cal), "next",0);
                         return res;
                     }
-                },1
+                }, 1, false, new EvalContextStartupInfo(true,true)
                 );
     }
 }

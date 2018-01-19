@@ -1,5 +1,6 @@
 ﻿using iExpr.Evaluators;
 using iExpr.Exceptions;
+using iExpr.Parsers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,23 +9,23 @@ namespace iExpr.Helpers
 {
     public static class ExceptionHelper
     {
-        public static void RaiseUnrecognizedToken(string expr,string message=null,Exception innerException = null)
+        public static void RaiseUnrecognizedToken(Symbol expr,string message=null,Exception innerException = null)
         {
             throw new Exceptions.UnrecognizedTokenException(expr, message, innerException);
         }
-        public static void RaiseExtraBracket(string expr, string message = null, Exception innerException = null)
+        public static void RaiseExtraBracket(Symbol expr, string message = null, Exception innerException = null)
         {
             throw new Exceptions.ExtraBracketException(expr, message, innerException);
         }
-        public static void RaiseUnexpectedExpression(string expr, string message = null, Exception innerException = null)
+        public static void RaiseUnexpectedExpression(Symbol expr, string message = null, Exception innerException = null)
         {
             throw new Exceptions.UnexpectedExpressionException(expr, message, innerException);
         }
-        public static void RaiseIncompleteExpression(string expr, string message = null, Exception innerException = null)
+        public static void RaiseIncompleteExpression(Symbol expr, string message = null, Exception innerException = null)
         {
             throw new Exceptions.IncompleteExpressionException(expr, message, innerException);
         }
-        public static void RaiseRelatedExpressionNotFound(string expr, string message = null, Exception innerException = null)
+        public static void RaiseRelatedExpressionNotFound(Symbol expr, string message = null, Exception innerException = null)
         {
             throw new Exceptions.RelatedExpressionNotFoundException(expr, message, innerException);
         }

@@ -24,6 +24,22 @@ namespace iExpr.Evaluators
 
     }
 
+    public struct EvalContextStartupInfo
+    {
+        public EvalContextStartupInfo(bool isNew,bool isProtected=false, VariableFindMode findMode = VariableFindMode.UpAll) : this()
+        {
+            IsNew = isNew;
+            FindMode = findMode;
+            IsProtected = isProtected;
+        }
+
+        public bool IsNew { get; set; }
+
+        public bool IsProtected { get; set; }
+
+        public VariableFindMode FindMode { get; set; }
+    }
+
     public class ExprEvaluator : IExprEvaluator
     {
         static ExprEvaluator exprEvaluator;
@@ -162,31 +178,50 @@ namespace iExpr.Evaluators
         {
             List<IExpr> args = new List<IExpr>();
             var op = expr.Operation;
+            EvalContext en = null;
+            if (op.ContextInfo.IsNew)
+            {
+                en = environment.GetChild(op.ContextInfo.FindMode);
+            }
+            else
+            {
+                en = environment;
+            }
             if (op.SelfCalculate != null && op.SelfCalculate.Length == 0)
-                return op.Calculate(environment, expr.Children);
+                return op.Calculate(en, expr.Children);
             for (uint i = 0; i < expr.Children.Length; i++)
             {
                 if (op.SelfCalculate?.Contains(i) == true) args.Add(expr.Children[i]);
-                else args.Add(environment.Evaluate(expr.Children[i]));
+                else args.Add(en.Evaluate(expr.Children[i]));
             }
-            return op.Calculate(environment, args.ToArray());//在同一环境
+            var res=op.Calculate(en, args.ToArray());//在同一环境
+            if (op.ContextInfo.IsNew == true && op.ContextInfo.IsProtected == false) en.Dispose();
+            return res;
         }
 
         public static IExpr EvaluateNodeCall(ExprNodeCall expr, EvalContext environment)
         {
             try
             {
+
                 var func = environment.GetValue<ICallableValue>(environment.Evaluate(expr.HeadExpr));
-                //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
-                //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
-                var cs = environment.GetChild();//开辟一个子环境，用于函数的计算，但参数的计算还是在当前层
-                if (func.ArgumentCount == 0) return func.Call(null, cs);
+                EvalContext en = null;
+                if (func.ContextInfo.IsNew)
+                {
+                    en = environment.GetChild(func.ContextInfo.FindMode);
+                }
+                else
+                {
+                    en = environment;
+                }
+                if (func.ArgumentCount == 0) return func.Call(null, en);
+                IExpr res = null;
                 if (func.IsSelfCalculate == false)
                 {
                     List<IExpr> args = new List<IExpr>();
                     foreach (var v in expr.Children)
                     {
-                        var val = cs.Evaluate(v);
+                        var val = en.Evaluate(v);
                         args.Add(val);
                         continue;
                         /*if (val is IValue)
@@ -198,12 +233,14 @@ namespace iExpr.Evaluators
                             throw new NotValueException();
                         }*/
                     }
-                    return func.Call(new FunctionArgument(args.ToArray()), cs);
+                    res= func.Call(new FunctionArgument(args.ToArray()), en);
                 }
                 else
                 {
-                    return func.Call(new FunctionArgument(expr.Children), cs);
+                    res= func.Call(new FunctionArgument(expr.Children), en);
                 }
+                if (func.ContextInfo.IsNew==true && func.ContextInfo.IsProtected == false) en.Dispose();
+                return res;
             }
             catch (ExprException ex)
             {
@@ -224,11 +261,20 @@ namespace iExpr.Evaluators
         {
             try
             {
+                
                 var func = environment.GetValue<IContentValue>(environment.Evaluate(expr.HeadExpr));
-                //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
-                //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
-                var cs = environment.GetChild();//开辟一个子环境
-                return func.Content(new FunctionArgument() { Contents = expr.Children }, cs);
+                EvalContext en = null;
+                if (func.ContextInfo.IsNew)
+                {
+                    en = environment.GetChild(func.ContextInfo.FindMode);
+                }
+                else
+                {
+                    en = environment;
+                }
+                var res= func.Content(new FunctionArgument() { Contents = expr.Children }, en);
+                if (func.ContextInfo.IsNew==true && func.ContextInfo.IsProtected == false) en.Dispose();
+                return res;
             }
             catch (ExprException ex)
             {
@@ -250,10 +296,18 @@ namespace iExpr.Evaluators
             try
             {
                 var func = environment.GetValue<IIndexableValue>(environment.Evaluate(expr.HeadExpr));
-                //if (head is ConstantToken) head = (head as ConstantToken).Value;//TODO: Attention this
-                //if (!(head is FunctionValue)) throw new Exceptions.EvaluateException("The invoking expr must have a function.");
-                var cs = environment.GetChild();//开辟一个子环境
-                return func.Index(new FunctionArgument() { Indexs = expr.Children }, cs);
+                EvalContext en = null;
+                if (func.ContextInfo.IsNew)
+                {
+                    en = environment.GetChild(func.ContextInfo.FindMode);
+                }
+                else
+                {
+                    en = environment;
+                }
+                var res= func.Index(new FunctionArgument() { Indexs = expr.Children }, en);
+                if (func.ContextInfo.IsNew==true && func.ContextInfo.IsProtected == false) en.Dispose();
+                return res;
             }
             catch (ExprException ex)
             {

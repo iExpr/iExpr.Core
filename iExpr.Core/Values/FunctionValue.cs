@@ -7,13 +7,15 @@ namespace iExpr.Values
 {
     public abstract class FunctionValue : ICallableValue,IContentValue
     {
-        public bool IsCertain => true;
+        public virtual bool IsCertain => true;
 
         public virtual bool IsSelfCalculate { get; protected set; } = false;
 
         public abstract Func<FunctionArgument, EvalContext, IExpr> EvaluateFunc { get; protected set; }
 
         public abstract int ArgumentCount { get; protected set; }
+
+        public virtual EvalContextStartupInfo ContextInfo { get; protected set; }
 
         public abstract bool Equals(IExpr other);
 
